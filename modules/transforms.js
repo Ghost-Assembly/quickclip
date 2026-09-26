@@ -10,6 +10,16 @@
 
 import { KIND } from './model.js';
 
+/**
+ * Marks a string for translation without translating it: xgettext finds it
+ * (with -kN_) and the caller passes it through gettext where it is shown.
+ * This file cannot import gettext; it has to load on plain Node for Vitest.
+ *
+ * @param {string} text An English string literal.
+ * @returns {string} The same string.
+ */
+const N_ = text => text;
+
 export class TransformError extends Error {
     constructor(message, options) {
         super(message, options);
@@ -59,7 +69,7 @@ export function base64Encode(text) {
 export function base64Decode(text) {
     const clean = text.replace(/\s+/g, '').replace(/-/g, '+').replace(/_/g, '/');
     if (!/^[A-Za-z0-9+/]*={0,2}$/.test(clean) || clean.length % 4 === 1)
-        throw new TransformError('Not base64 text');
+        throw new TransformError(N_('Not base64 text'));
 
     const bytes = [];
     let buffer = 0;
@@ -76,7 +86,7 @@ export function base64Decode(text) {
     try {
         return new TextDecoder('utf-8', { fatal: true }).decode(new Uint8Array(bytes));
     } catch (error) {
-        throw new TransformError('Decoded bytes are not text', { cause: error });
+        throw new TransformError(N_('Decoded bytes are not text'), { cause: error });
     }
 }
 
@@ -95,7 +105,7 @@ function parseJson(text) {
     try {
         return JSON.parse(text);
     } catch (error) {
-        throw new TransformError('Not valid JSON', { cause: error });
+        throw new TransformError(N_('Not valid JSON'), { cause: error });
     }
 }
 
@@ -114,7 +124,7 @@ function urlDecode(text) {
     try {
         return decodeURIComponent(text);
     } catch (error) {
-        throw new TransformError('Not valid URL encoding', { cause: error });
+        throw new TransformError(N_('Not valid URL encoding'), { cause: error });
     }
 }
 
@@ -149,7 +159,7 @@ const ISO =
 
 function epochToIso(text) {
     const match = EPOCH.exec(text);
-    if (!match) throw new TransformError('Not a Unix timestamp');
+    if (!match) throw new TransformError(N_('Not a Unix timestamp'));
     const digits = match[1];
     const ms = digits.length === 13 ? Number(digits) : Number(digits) * 1000;
     return new Date(ms).toISOString();
@@ -157,7 +167,7 @@ function epochToIso(text) {
 
 function isoToEpoch(text) {
     const ms = ISO.test(text) ? Date.parse(text.trim()) : Number.NaN;
-    if (!Number.isFinite(ms)) throw new TransformError('Not an ISO date');
+    if (!Number.isFinite(ms)) throw new TransformError(N_('Not an ISO date'));
     return String(Math.floor(ms / 1000));
 }
 
@@ -175,66 +185,71 @@ export function createTransforms({ uuid, now }) {
         Object.freeze({ id, label, generator: true, applies: () => true, run });
 
     return Object.freeze([
-        define('json-pretty', 'Pretty-print JSON', looksLikeJson, text =>
+        define('json-pretty', N_('Pretty-print JSON'), looksLikeJson, text =>
             JSON.stringify(parseJson(text), null, 2),
         ),
-        define('json-minify', 'Minify JSON', looksLikeJson, text =>
+        define('json-minify', N_('Minify JSON'), looksLikeJson, text =>
             JSON.stringify(parseJson(text)),
         ),
-        define('base64-encode', 'Base64 encode', text => text.length > 0, base64Encode),
-        define('base64-decode', 'Base64 decode', looksLikeBase64, base64Decode),
+        define(
+            'base64-encode',
+            N_('Base64 encode'),
+            text => text.length > 0,
+            base64Encode,
+        ),
+        define('base64-decode', N_('Base64 decode'), looksLikeBase64, base64Decode),
         define(
             'url-encode',
-            'URL encode',
+            N_('URL encode'),
             text => encodeURIComponent(text) !== text,
             text => encodeURIComponent(text),
         ),
         define(
             'url-decode',
-            'URL decode',
+            N_('URL decode'),
             text => /%[0-9A-Fa-f]{2}/.test(text),
             urlDecode,
         ),
         define(
             'trim',
-            'Trim whitespace',
+            N_('Trim whitespace'),
             text => text !== text.trim(),
             text => text.trim(),
         ),
         define(
             'collapse',
-            'Collapse whitespace',
+            N_('Collapse whitespace'),
             text => /\s{2,}|[\t\r\n]/.test(text.trim()),
             text => text.trim().replace(/\s+/g, ' '),
         ),
         define(
             'upper',
-            'UPPER CASE',
+            N_('UPPER CASE'),
             text => text.toUpperCase() !== text,
             text => text.toUpperCase(),
         ),
         define(
             'lower',
-            'lower case',
+            N_('lower case'),
             text => text.toLowerCase() !== text,
             text => text.toLowerCase(),
         ),
-        define('snake', 'snake_case', caseApplies(toSnake), toSnake),
-        define('kebab', 'kebab-case', caseApplies(toKebab), toKebab),
+        define('snake', N_('snake_case'), caseApplies(toSnake), toSnake),
+        define('kebab', N_('kebab-case'), caseApplies(toKebab), toKebab),
         define(
             'epoch-to-iso',
-            'Unix time → ISO date',
+            N_('Unix time → ISO date'),
             text => EPOCH.test(text),
             epochToIso,
         ),
         define(
             'iso-to-epoch',
-            'ISO date → Unix time',
+            N_('ISO date → Unix time'),
             text => ISO.test(text) && Number.isFinite(Date.parse(text.trim())),
             isoToEpoch,
         ),
-        generate('uuid', 'New UUID', () => uuid()),
-        generate('timestamp', 'Current time (ISO)', () =>
+        generate('uuid', N_('New UUID'), () => uuid()),
+        generate('timestamp', N_('Current time (ISO)'), () =>
             new Date(now()).toISOString(),
         ),
     ]);
@@ -266,13 +281,13 @@ export function applicable(transforms, item) {
  */
 export function runTransform(transform, text) {
     if (!transform.generator && text.length > MAX_TRANSFORM_CHARS)
-        throw new TransformError('Too long to transform');
+        throw new TransformError(N_('Too long to transform'));
     try {
         return transform.run(text);
     } catch (error) {
         if (error instanceof TransformError) throw error;
         // An engine error can quote its input, as JSON.parse's does. Never
         // pass its message on.
-        throw new TransformError('Could not transform this text', { cause: error });
+        throw new TransformError(N_('Could not transform this text'), { cause: error });
     }
 }

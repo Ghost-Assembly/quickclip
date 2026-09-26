@@ -1,3 +1,6 @@
+import { readdirSync, readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import Clutter, { virtualSeat } from './stubs/gi-clutter.js';
@@ -16,7 +19,27 @@ import {
     flush,
 } from './support/world.js';
 
-function build(values = {}) {
+/**
+ * Every msgid xgettext can pull out of modules/: a single string literal as the
+ * whole first argument of _() or N_() (xgettext -k_ -kN_). A variable, a
+ * template or a concatenation there is invisible to it.
+ */
+function extractableMsgids() {
+    const dir = fileURLToPath(new URL('../modules/', import.meta.url));
+    const call = /(?<![\w.$])N?_\(\s*'((?:[^'\\]|\\.)*)'\s*[,)]/g;
+    const ids = new Set();
+    // A module-relative constant directory and the files in it, not input.
+    // eslint-disable-next-line security/detect-non-literal-fs-filename
+    const files = readdirSync(dir).filter(name => name.endsWith('.js'));
+    for (const file of files) {
+        // eslint-disable-next-line security/detect-non-literal-fs-filename
+        const source = readFileSync(dir + file, 'utf8');
+        for (const match of source.matchAll(call)) ids.add(match[1]);
+    }
+    return ids;
+}
+
+function build(values = {}, { gettext = message => message } = {}) {
     const timers = createTimers();
     const settings = createSettings(values);
     const clip = createClipboard();
@@ -30,7 +53,7 @@ function build(values = {}) {
         source: clip,
         paster,
         iconPath: '/icon.svg',
-        gettext: message => message,
+        gettext,
         ngettext: (one, many, count) => (count === 1 ? one : many),
         openPrefs: () => (prefs += 1),
         uuid: () => 'uuid-1',
@@ -358,6 +381,23 @@ describe('QuickClip', () => {
         expect(Main.notifications).toHaveLength(1);
         expect(Main.notifications[0].message).toBe('QuickClip');
         expect(Main.notifications[0].details).not.toContain('hunter2');
+    });
+
+    it('words a failed transform only in strings a translator is given', async () => {
+        const asked = [];
+        const gettext = message => (asked.push(message), message);
+        const { app, clip } = build({}, { gettext });
+        clip.copyText('not json');
+        await flush();
+        const pretty = app._transforms.find(({ id }) => id === 'json-pretty');
+
+        asked.length = 0;
+        app._actions.transform(pretty);
+
+        expect(Main.notifications).toHaveLength(1);
+        expect(asked.length).toBeGreaterThan(0);
+        const known = extractableMsgids();
+        for (const message of asked) expect(known, message).toContain(message);
     });
 
     it('pins without duplicates, unpins by position, pauses and opens prefs', () => {

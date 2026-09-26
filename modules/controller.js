@@ -232,11 +232,15 @@ export class QuickClip {
         } catch (error) {
             if (!(error instanceof TransformError)) throw error;
             // Fixed wording only: a notification can outlive the copy and show
-            // on the lock screen.
+            // on the lock screen. One msgid for the sentence, so a translator
+            // can reorder it; the label and the reason are marked with N_ in
+            // transforms.js, which is how xgettext finds them.
             Main.notify(
                 'QuickClip',
-                fill(_('%s did not apply'), _(transform.label)) +
-                    ` — ${_(error.message)}`,
+                fill(
+                    fill(_('%s did not apply — %s'), _(transform.label)),
+                    _(error.message),
+                ),
             );
             return false;
         }

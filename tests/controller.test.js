@@ -68,12 +68,19 @@ describe('QuickClip', () => {
         const { clip } = build();
         expect(liveTile()).toHaveLength(1);
         expect(clip.listening).toBe(true);
-        expect([...Main.wm.bindings.keys()].sort()).toEqual([
-            KEYS.PAUSE_SHORTCUT,
-            KEYS.POPUP_SHORTCUT,
-        ]);
+        expect([...Main.wm.bindings.keys()].sort()).toEqual(
+            [KEYS.PAUSE_SHORTCUT, KEYS.POPUP_SHORTCUT].sort(),
+        );
         for (const binding of Main.wm.bindings.values())
             expect(binding.mode).toBe(Shell.ActionMode.NORMAL);
+    });
+
+    // Mutter keybinding names share one namespace across the whole Shell, and
+    // a name another extension already holds is refused.
+    it('binds its shortcuts under names only QuickClip would use', () => {
+        build();
+        expect(Main.addCalls.length).toBeGreaterThan(0);
+        for (const name of Main.addCalls) expect(name).toMatch(/^quickclip-/);
     });
 
     it('hides everything while locked, and clears by default', async () => {

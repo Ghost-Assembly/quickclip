@@ -59,7 +59,7 @@
       </description>
     </key>
 
-    <key type="as" name="popup-shortcut">
+    <key type="as" name="quickclip-open-popup">
       <default><![CDATA[['<Super><Shift>v']]]></default>
       <summary>Open the popup</summary>
       <description>
@@ -68,7 +68,7 @@
       </description>
     </key>
 
-    <key type="as" name="pause-shortcut">
+    <key type="as" name="quickclip-toggle-pause">
       <default>[]</default>
       <summary>Pause or resume recording</summary>
       <description>

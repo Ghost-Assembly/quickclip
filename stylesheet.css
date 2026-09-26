@@ -1,0 +1,35 @@
+/* QuickClip.
+ *
+ * gnome-shell loads this automatically. Presentation only, and no colors:
+ * the Shell has a light and a dark style, and selection uses the theme's own
+ * popup-menu-item states.
+ */
+
+.quickclip-current {
+    spacing: 12px;
+}
+
+.quickclip-thumb {
+    icon-size: 48px;
+}
+
+.quickclip-blocked {
+    font-style: italic;
+}
+
+.quickclip-row-button {
+    padding: 4px;
+}
+
+.quickclip-popup-box {
+    spacing: 12px;
+    min-width: 480px;
+}
+
+.quickclip-scroll {
+    max-height: 420px;
+}
+
+.quickclip-row-box {
+    spacing: 12px;
+}

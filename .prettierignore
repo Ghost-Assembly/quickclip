@@ -1,0 +1,6 @@
+node_modules/
+coverage/
+schemas/gschemas.compiled
+package-lock.json
+test-results/
+playwright-report/

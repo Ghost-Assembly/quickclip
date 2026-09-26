@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist gettext-domain="quickclip">
+  <schema id="org.gnome.shell.extensions.quickclip"
+          path="/org/gnome/shell/extensions/quickclip/">
+
+    <key type="i" name="history-size">
+      <range min="5" max="100"/>
+      <default>20</default>
+      <summary>History size</summary>
+      <description>
+        How many copies to keep. Older ones are dropped first. The history is
+        held in memory only and is never written to disk.
+      </description>
+    </key>
+
+    <key type="i" name="image-budget-mb">
+      <range min="0" max="256"/>
+      <default>32</default>
+      <summary>Image memory budget</summary>
+      <description>
+        The most memory, in megabytes, that copied images may use together.
+        The oldest images are dropped first. 0 stops images being kept at all.
+      </description>
+    </key>
+
+    <key type="i" name="expire-minutes">
+      <range min="0" max="1440"/>
+      <default>30</default>
+      <summary>Expire copies after</summary>
+      <description>
+        Minutes after which a copy is dropped from the history. Pinned
+        snippets never expire. 0 keeps copies until they are pushed out.
+      </description>
+    </key>
+
+    <key type="b" name="clear-on-lock">
+      <default>true</default>
+      <summary>Clear on lock</summary>
+      <description>
+        Empty the history when the screen locks. When off, the history is kept
+        in memory across the lock; nothing is recorded while locked either way.
+      </description>
+    </key>
+
+    <key type="b" name="auto-paste">
+      <default>true</default>
+      <summary>Paste on select</summary>
+      <description>
+        After choosing an item in the popup, paste it into the window that had
+        focus. Terminals listed in terminal-apps get Ctrl+Shift+V.
+      </description>
+    </key>
+
+    <key type="b" name="paused">
+      <default>false</default>
+      <summary>Recording paused</summary>
+      <description>
+        While true, copies are not recorded. Toggled from the tile.
+      </description>
+    </key>
+
+    <key type="as" name="popup-shortcut">
+      <default><![CDATA[['<Super><Shift>v']]]></default>
+      <summary>Open the popup</summary>
+      <description>
+        Shortcut that opens the clipboard popup. Chosen so it does not take
+        over any GNOME default.
+      </description>
+    </key>
+
+    <key type="as" name="pause-shortcut">
+      <default>[]</default>
+      <summary>Pause or resume recording</summary>
+      <description>
+        Shortcut that pauses or resumes recording. Unset by default.
+      </description>
+    </key>
+
+    <key type="as" name="ignored-apps">
+      <default>[]</default>
+      <summary>Ignored apps</summary>
+      <description>
+        Desktop app ids whose copies are not recorded. Wayland does not say
+        which app made a copy, so this uses the app focused at the time.
+      </description>
+    </key>
+
+    <key type="as" name="terminal-apps">
+      <default>['org.gnome.Ptyxis.desktop', 'org.gnome.Console.desktop', 'org.gnome.Terminal.desktop', 'kitty.desktop', 'Alacritty.desktop', 'foot.desktop', 'org.wezfurlong.wezterm.desktop', 'com.mitchellh.ghostty.desktop']</default>
+      <summary>Terminal apps</summary>
+      <description>
+        Desktop app ids that paste with Ctrl+Shift+V instead of Ctrl+V.
+      </description>
+    </key>
+
+    <key type="as" name="pinned">
+      <default>[]</default>
+      <summary>Pinned snippets</summary>
+      <description>
+        Text you pinned. The only clipboard content QuickClip stores on disk,
+        and only because you asked it to.
+      </description>
+    </key>
+  </schema>
+</schemalist>

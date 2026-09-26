@@ -66,8 +66,8 @@ Data flow: `owner-changed` → `privacy.shouldRecord` → read content → `mode
 popup re-render. `disable()` disconnects every signal, removes the timeout, destroys the virtual
 device, empties history (pins stay in GSettings).
 
-GSettings (`org.gnome.shell.extensions.quickclip`): `history-size` u 20, `image-budget-mb` u 32,
-`expire-minutes` u 30, `clear-on-lock` b true, `auto-paste` b true, `paused` b false,
+GSettings (`org.gnome.shell.extensions.quickclip`): `history-size` i 20 (5–100), `image-budget-mb`
+i 32 (0–256, 0 = no images), `expire-minutes` i 30 (0–1440), `clear-on-lock` b true, `auto-paste` b true, `paused` b false,
 `popup-shortcut` as `['<Super><Shift>v']`, `pause-shortcut` as `[]`, `ignored-apps` as `[]`,
 `terminal-apps` as (Ptyxis, Console, GNOME Terminal, kitty, Alacritty, foot, WezTerm,
 **Ghostty** `com.mitchellh.ghostty` — exact desktop ids verified during implementation),

@@ -20,6 +20,9 @@ function build(values = {}) {
     const clip = createClipboard();
     const paster = new Paster({ clock: () => 1 });
     let prefs = 0;
+    // Wall-clock time that passed without the timers running, as in a
+    // suspend: GLib timeouts are monotonic, History's addedAt is not.
+    let slept = 0;
     const app = new QuickClip({
         settings,
         source: clip,
@@ -29,11 +32,18 @@ function build(values = {}) {
         ngettext: (one, many, count) => (count === 1 ? one : many),
         openPrefs: () => (prefs += 1),
         uuid: () => 'uuid-1',
-        now: timers.now,
+        now: () => timers.now() + slept,
         timers,
     });
     app.enable();
-    return { app, settings, clip, timers, prefsOpened: () => prefs };
+    return {
+        app,
+        settings,
+        clip,
+        timers,
+        prefsOpened: () => prefs,
+        sleep: ms => (slept += ms),
+    };
 }
 
 const tile = () => Main.externalIndicators.at(-1).indicator.quickSettingsItems[0];
@@ -144,6 +154,52 @@ describe('QuickClip', () => {
         expect(keysSent()).toEqual([]);
     });
 
+    describe('after a suspend, with the expiry timer not yet run', () => {
+        const EXPIRED = 31 * 60 * 1000;
+
+        it('drops expired copies before the popup opens', async () => {
+            const { app, clip, sleep } = build();
+            clip.copyText('stale');
+            await flush();
+            sleep(EXPIRED);
+            expect(app._history.items).toHaveLength(1);
+
+            app.openPopup();
+
+            expect(app._history.items).toEqual([]);
+            const rows = descendants(app._popup).filter(actor =>
+                actor.style_class?.includes('quickclip-item'),
+            );
+            expect(rows).toEqual([]);
+        });
+
+        it('drops expired copies on unlock', async () => {
+            const { app, clip, sleep } = build({ [KEYS.CLEAR_ON_LOCK]: false });
+            clip.copyText('stale');
+            await flush();
+            Main.lock(true);
+            sleep(EXPIRED);
+
+            Main.lock(false);
+
+            expect(app._history.items).toEqual([]);
+        });
+
+        it('drops expired copies when the tile menu opens', async () => {
+            const { app, clip, sleep } = build();
+            clip.copyText('stale');
+            await flush();
+            sleep(EXPIRED);
+
+            tile().menu.open();
+
+            expect(app._history.items).toEqual([]);
+            expect(
+                descendants(tile().menu).filter(item => item.label?.text === 'stale'),
+            ).toEqual([]);
+        });
+    });
+
     it('opens one popup from the shortcut, and none while locked', () => {
         const { app } = build();
         Main.wm.bindings.get(KEYS.POPUP_SHORTCUT).handler();
@@ -220,7 +276,9 @@ describe('QuickClip', () => {
             timers.advance(PASTE_DELAY_MS);
         }
         expect(Main.notifications).toHaveLength(1);
-        expect(Main.notifications[0].body).not.toContain('x');
+        expect(Main.notifications[0].body).toBe(
+            'Auto-paste is unavailable. The item was copied; paste it yourself.',
+        );
     });
 
     it('writes a transform result and pastes it from the popup', async () => {

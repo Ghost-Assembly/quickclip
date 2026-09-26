@@ -35,6 +35,7 @@ function build(values = {}) {
         setPaused: record('setPaused'),
         transform: record('transform'),
         openPrefs: record('openPrefs'),
+        expire: record('expire'),
     };
     const panel = new Panel({
         settings,
@@ -158,6 +159,14 @@ describe('Panel', () => {
         history.add({ kind: KIND.TEXT, text: 'x' });
         const second = all(toggle).find(actor => actor.gicon?.bytes === 'png').gicon;
         expect(second).toBe(first);
+    });
+
+    it('asks for expired copies to be dropped each time the menu opens', () => {
+        const { toggle, calls } = build();
+        toggle.menu.open();
+        toggle.menu.close();
+        toggle.menu.open();
+        expect(calls.filter(([name]) => name === 'expire')).toHaveLength(2);
     });
 
     it('clears and opens preferences from the menu', () => {

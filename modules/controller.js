@@ -102,6 +102,7 @@ export class QuickClip {
     /** Open the popup, unless locked or already open. */
     openPopup() {
         if (this._locked || this._popup || !this._history) return;
+        this._history.expire();
         this._popup = new ClipPopup({
             history: this._history,
             pinned: this._settings.get_strv(KEYS.PINNED),
@@ -127,6 +128,9 @@ export class QuickClip {
             if (this._settings.get_boolean(KEYS.CLEAR_ON_LOCK)) this._history.clear();
             console.debug('[quickclip] locked');
         } else {
+            // The expiry timer is monotonic and stood still through any
+            // suspend while locked; History's times are wall-clock.
+            this._history.expire();
             this._recorder.listen();
             this._showUi();
             console.debug('[quickclip] listening');
@@ -198,6 +202,9 @@ export class QuickClip {
             setPaused: paused => settings.set_boolean(KEYS.PAUSED, paused),
             transform: transform => this._transform(transform, this._history.current),
             openPrefs: () => this._openPrefs(),
+            // Before history is shown: GLib timeouts do not run during a
+            // suspend, so the expiry timer can be late.
+            expire: () => this._history.expire(),
         });
     }
 

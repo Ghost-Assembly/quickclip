@@ -94,6 +94,15 @@ const QuickClipToggle = GObject.registerClass(
                 () => this._actions?.setPaused(!this.checked),
                 this,
             );
+            // Expiry runs on a timer that stands still during a suspend, so
+            // the controller gets a chance to catch up before the menu shows.
+            this.menu.connectObject(
+                'open-state-changed',
+                (_menu, open) => {
+                    if (open) this._actions?.expire();
+                },
+                this,
+            );
             // A plain connect, as ButtonBox does: connectObject with this as its
             // own owner could be released by the destroy it is meant to handle.
             this.connect('destroy', () => this._onDestroy());

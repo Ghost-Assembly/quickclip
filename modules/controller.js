@@ -153,7 +153,7 @@ export class QuickClip {
             Main.wm.addKeybinding(
                 key,
                 this._settings,
-                Meta.KeyBindingFlags.NONE,
+                Meta.KeyBindingFlags.IGNORE_AUTOREPEAT,
                 Shell.ActionMode.NORMAL,
                 handler,
             );

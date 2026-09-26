@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import Clutter, { virtualSeat } from './stubs/gi-clutter.js';
+import Meta from './stubs/gi-meta.js';
 import Shell from './stubs/gi-shell.js';
 import * as Main from './stubs/shell-main.js';
 import { descendants, liveHandlers, resetActors } from './support/actors.js';
@@ -81,6 +82,14 @@ describe('QuickClip', () => {
         build();
         expect(Main.addCalls.length).toBeGreaterThan(0);
         for (const name of Main.addCalls) expect(name).toMatch(/^quickclip-/);
+    });
+
+    // A held shortcut would otherwise open and close the popup, or flip pause,
+    // at the keyboard's repeat rate.
+    it('ignores key repeat on its shortcuts', () => {
+        build();
+        for (const binding of Main.wm.bindings.values())
+            expect(binding.flags).toBe(Meta.KeyBindingFlags.IGNORE_AUTOREPEAT);
     });
 
     it('hides everything while locked, and clears by default', async () => {

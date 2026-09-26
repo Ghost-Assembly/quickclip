@@ -16,7 +16,7 @@ import {
     gettext as _,
 } from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
 
-import { findConflicts } from './modules/accel.js';
+import { canBeShortcut, findConflicts } from './modules/accel.js';
 import { pinnable } from './modules/listing.js';
 import { KEYS, SETTINGS } from './modules/settings.js';
 
@@ -85,7 +85,9 @@ function systemBindings() {
 function captureShortcut(window, onAccel) {
     const dialog = new Adw.AlertDialog({
         heading: _('Press a shortcut'),
-        body: _('Use at least one modifier. Esc cancels; Backspace turns it off.'),
+        body: _(
+            'Hold Ctrl, Alt or Super with a key. Esc cancels; Backspace turns it off.',
+        ),
     });
     dialog.add_response('cancel', _('Cancel'));
 
@@ -104,10 +106,12 @@ function captureShortcut(window, onAccel) {
             dialog.close();
             return Gdk.EVENT_STOP;
         }
-        // A bare key would swallow typing everywhere; a lone modifier is not
-        // a shortcut yet.
-        if (!mods || !Gtk.accelerator_valid(key, mods)) return Gdk.EVENT_STOP;
-        onAccel(Gtk.accelerator_name_with_keycode(null, key, keycode, mods));
+        // A lone modifier is not a shortcut yet; a bare key, or Shift with a
+        // letter, would swallow typing everywhere.
+        if (!Gtk.accelerator_valid(key, mods)) return Gdk.EVENT_STOP;
+        const accel = Gtk.accelerator_name_with_keycode(null, key, keycode, mods);
+        if (!canBeShortcut(accel, Gdk.keyval_to_unicode(key))) return Gdk.EVENT_STOP;
+        onAccel(accel);
         dialog.close();
         return Gdk.EVENT_STOP;
     });

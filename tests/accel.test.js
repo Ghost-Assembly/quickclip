@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { findConflicts, normalizeAccel } from '../modules/accel.js';
+import { canBeShortcut, findConflicts, normalizeAccel } from '../modules/accel.js';
 
 const gnome = [
     {
@@ -45,5 +45,34 @@ describe('findConflicts', () => {
 
     it('has nothing to say about an empty shortcut', () => {
         expect(findConflicts('', gnome)).toEqual([]);
+    });
+});
+
+describe('canBeShortcut', () => {
+    const code = char => char.codePointAt(0);
+
+    it('refuses Shift with a key that types a character, as GNOME Settings does', () => {
+        expect(canBeShortcut('<Shift>a', code('a'))).toBe(false);
+        expect(canBeShortcut('<Shift>exclam', code('!'))).toBe(false);
+        expect(canBeShortcut('<Shift>eacute', code('é'))).toBe(false);
+        expect(canBeShortcut('<Shift>space', code(' '))).toBe(false);
+    });
+
+    it('takes Shift with a key that types nothing', () => {
+        expect(canBeShortcut('<Shift>F5', 0)).toBe(true);
+        expect(canBeShortcut('<Shift>Tab', code('\t'))).toBe(true);
+    });
+
+    it('takes any key with Ctrl, Alt or Super', () => {
+        expect(canBeShortcut('<Control>a', code('a'))).toBe(true);
+        expect(canBeShortcut('<Alt>1', code('1'))).toBe(true);
+        expect(canBeShortcut('<Super><Shift>v', code('v'))).toBe(true);
+    });
+
+    it('refuses a bare key and anything it cannot read', () => {
+        expect(canBeShortcut('a', code('a'))).toBe(false);
+        expect(canBeShortcut('F5', 0)).toBe(false);
+        expect(canBeShortcut('<Bogus>a', code('a'))).toBe(false);
+        expect(canBeShortcut('', 0)).toBe(false);
     });
 });

@@ -233,9 +233,14 @@ export class QuickClip {
         } catch (error) {
             if (!(error instanceof TransformError)) throw error;
             // Fixed wording only: a notification can outlive the copy and show
-            // on the lock screen. One msgid for the sentence, so a translator
-            // can reorder it; the label and the reason are marked with N_ in
+            // on the lock screen. One msgid holds the whole sentence; fill()
+            // replaces each %s in call order, not by its position in a
+            // translation, so the first fill() below always becomes the label
+            // and the second always becomes the reason — a translator can
+            // reword around the two %s but not swap which value lands in
+            // which one. The label and the reason are marked with N_ in
             // transforms.js, which is how xgettext finds them.
+            // Translators: %s %s — the transform's label, then why it failed.
             Main.notify(
                 'QuickClip',
                 fill(

@@ -11,7 +11,7 @@ import { descendants, liveHandlers, resetActors } from './support/actors.js';
 import { PASTE_DELAY_MS, QuickClip } from '../modules/controller.js';
 import { Paster } from '../modules/paste.js';
 import { KEYS } from '../modules/settings.js';
-import { MAX_TRANSFORM_CHARS } from '../modules/transforms.js';
+import { MAX_TRANSFORM_CHARS, createTransforms } from '../modules/transforms.js';
 import {
     createClipboard,
     createSettings,
@@ -398,6 +398,13 @@ describe('QuickClip', () => {
         expect(asked.length).toBeGreaterThan(0);
         const known = extractableMsgids();
         for (const message of asked) expect(known, message).toContain(message);
+    });
+
+    it('gives every transform label to xgettext', () => {
+        const known = extractableMsgids();
+        const transforms = createTransforms({ uuid: () => 'uuid-1', now: () => 1 });
+        expect(transforms.length).toBeGreaterThan(0);
+        for (const { label } of transforms) expect(known, label).toContain(label);
     });
 
     it('pins without duplicates, unpins by position, pauses and opens prefs', () => {

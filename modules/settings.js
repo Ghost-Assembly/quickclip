@@ -83,7 +83,7 @@ export const SETTINGS = Object.freeze(
             key: KEYS.PAUSED,
             type: 'b',
             label: 'Recording paused',
-            detail: 'Toggled from the quick settings tile',
+            detail: 'Toggled from the Quick Settings tile',
         },
         {
             key: KEYS.POPUP_SHORTCUT,

@@ -222,7 +222,7 @@ const QuickClipToggle = GObject.registerClass(
         _onDestroy() {
             this._actions = null;
             this._thumbs.clear();
-            // The Shell parents this menu into the quick settings overlay and
+            // The Shell parents this menu into the Quick Settings overlay and
             // never destroys it (Shell 50.3), so without this every disable —
             // and every lock — would leave a menu behind.
             this.menu.destroy();
@@ -297,7 +297,7 @@ export class Panel {
         this._watcher?.release();
         this._watcher = null;
 
-        // The Shell reparents the toggle into the quick settings grid, so it
+        // The Shell reparents the toggle into the Quick Settings grid, so it
         // goes first, then its indicator.
         this._toggle?.disconnectObject(this);
         this._toggle?.destroy();

@@ -37,42 +37,44 @@
 
 ## File map
 
-| Path | Responsibility |
-|---|---|
-| `metadata.json` | Extension manifest |
-| `schemas/org.gnome.shell.extensions.quickclip.gschema.xml` | Settings schema |
-| `extension.js` | Wires ClipboardSource, Paster and QuickClip; nothing else |
-| `prefs.js` | Adw preferences window (excluded from coverage) |
-| `modules/settings.js` | Keys, wording, defaults, `historyOptions`, `SettingsWatcher` |
-| `modules/model.js` | `History`: items, caps, dedupe, expiry, blocked notice |
-| `modules/transforms.js` | Transform list, `applicable`, `runTransform`, `TransformError` |
-| `modules/privacy.js` | `shouldRecord`, MIME constants, reasons, limits |
-| `modules/listing.js` | Row text, previews, filtering, selection stepping, `fill` |
-| `modules/accel.js` | Accelerator normalization and conflict detection |
-| `modules/clipboard.js` | Shell clipboard adapter (excluded from coverage) |
-| `modules/recorder.js` | owner-changed → privacy → read → History; expiry timer |
-| `modules/paste.js` | `pasteKeys`, `Paster` (virtual keyboard) |
-| `modules/panel.js` | Quick Settings tile and its menu |
-| `modules/popup.js` | Keyboard popup (ModalDialog) |
-| `modules/controller.js` | `QuickClip`: lifecycle, lock, keybindings, actions |
-| `stylesheet.css` | Presentation only, no colors |
-| `icons/quickclip-symbolic.svg` | Tile icon |
-| `tests/stubs/*`, `tests/support/*` | Shell stand-ins and fakes |
-| `tests/*.test.js` | Vitest suites; `tests/docs.spec.js` Playwright |
-| `scripts/headless-check.sh`, `scripts/pack-check.sh`, `scripts/icon-check.js` | Live checks |
-| `docs/` | Public docs site (GitHub Pages) |
-| `design/` | Spec and this plan (not published) |
+| Path                                                                          | Responsibility                                                 |
+| ----------------------------------------------------------------------------- | -------------------------------------------------------------- |
+| `metadata.json`                                                               | Extension manifest                                             |
+| `schemas/org.gnome.shell.extensions.quickclip.gschema.xml`                    | Settings schema                                                |
+| `extension.js`                                                                | Wires ClipboardSource, Paster and QuickClip; nothing else      |
+| `prefs.js`                                                                    | Adw preferences window (excluded from coverage)                |
+| `modules/settings.js`                                                         | Keys, wording, defaults, `historyOptions`, `SettingsWatcher`   |
+| `modules/model.js`                                                            | `History`: items, caps, dedupe, expiry, blocked notice         |
+| `modules/transforms.js`                                                       | Transform list, `applicable`, `runTransform`, `TransformError` |
+| `modules/privacy.js`                                                          | `shouldRecord`, MIME constants, reasons, limits                |
+| `modules/listing.js`                                                          | Row text, previews, filtering, selection stepping, `fill`      |
+| `modules/accel.js`                                                            | Accelerator normalization and conflict detection               |
+| `modules/clipboard.js`                                                        | Shell clipboard adapter (excluded from coverage)               |
+| `modules/recorder.js`                                                         | owner-changed → privacy → read → History; expiry timer         |
+| `modules/paste.js`                                                            | `pasteKeys`, `Paster` (virtual keyboard)                       |
+| `modules/panel.js`                                                            | Quick Settings tile and its menu                               |
+| `modules/popup.js`                                                            | Keyboard popup (ModalDialog)                                   |
+| `modules/controller.js`                                                       | `QuickClip`: lifecycle, lock, keybindings, actions             |
+| `stylesheet.css`                                                              | Presentation only, no colors                                   |
+| `icons/quickclip-symbolic.svg`                                                | Tile icon                                                      |
+| `tests/stubs/*`, `tests/support/*`                                            | Shell stand-ins and fakes                                      |
+| `tests/*.test.js`                                                             | Vitest suites; `tests/docs.spec.js` Playwright                 |
+| `scripts/headless-check.sh`, `scripts/pack-check.sh`, `scripts/icon-check.js` | Live checks                                                    |
+| `docs/`                                                                       | Public docs site (GitHub Pages)                                |
+| `design/`                                                                     | Spec and this plan (not published)                             |
 
 ---
 
 ### Task 1: Scaffold the repository, schema, settings module and test harness
 
 **Files:**
+
 - Create (copied verbatim from quickmusic): `LICENSE`, `.prettierrc.json`, `.prettierignore`, `.gitignore`, `eslint.config.js`, `mise.toml`, `.gitleaks.toml`, `.github/dependabot.yml`, `.github/workflows/ci.yml`, `.github/workflows/release.yml`, `.github/workflows/security.yml`, `.github/workflows/sonar.yml`, `tests/support/actors.js`, `tests/stubs/gi-gobject.js`, `tests/stubs/gi-pango.js`, `tests/stubs/shell-quicksettings.js`
 - Create (new content below): `package.json`, `metadata.json`, `schemas/org.gnome.shell.extensions.quickclip.gschema.xml`, `modules/settings.js`, `icons/quickclip-symbolic.svg`, `vitest.config.js`, `sonar-project.properties`, `justfile`, `tests/stubs/gi-clutter.js`, `tests/stubs/gi-gio.js`, `tests/stubs/gi-glib.js`, `tests/stubs/gi-meta.js`, `tests/stubs/gi-shell.js`, `tests/stubs/gi-st.js`, `tests/stubs/shell-extension.js`, `tests/stubs/shell-main.js`, `tests/stubs/shell-popupmenu.js`, `tests/stubs/shell-modaldialog.js`, `tests/stubs/misc-animationutils.js`, `tests/support/world.js`, `tests/settings.test.js`
 - Modify: `design/2026-09-25-quickclip-design.md` (one line)
 
 **Interfaces:**
+
 - Produces: `KEYS`, `SETTINGS`, `ALL_KEYS`, `DEFAULT_TERMINALS`, `historyOptions(settings) → {size, imageBudget, expireMs}`, `SettingsWatcher` (from `modules/settings.js`); `createSettings(values)`, `createClipboard()`, `createTimers()`, `MB` (from `tests/support/world.js`); stubs listed above.
 
 - [ ] **Step 1: Copy the unchanged tooling**
@@ -1385,10 +1387,12 @@ git commit -m "build: scaffold QuickClip from the QuickMusic template"
 ### Task 2: Transforms
 
 **Files:**
+
 - Create: `modules/transforms.js`, `modules/model.js` (only the `KIND` export for now — Task 3 fills in `History`)
 - Test: `tests/transforms.test.js`
 
 **Interfaces:**
+
 - Consumes: nothing.
 - Produces: `KIND = {TEXT: 'text', IMAGE: 'image'}` in `modules/model.js`; in `modules/transforms.js`: `TransformError`, `MAX_TRANSFORM_CHARS = 100_000`, `base64Encode(text) → string`, `base64Decode(text) → string`, `createTransforms({uuid: () => string, now: () => number}) → ReadonlyArray<Transform>` where `Transform = {id, label, generator: boolean, applies(text) → boolean, run(text) → string}`, `applicable(transforms, item|null) → Transform[]`, `runTransform(transform, text) → string` (throws `TransformError`).
 
@@ -1570,7 +1574,9 @@ describe('limits', () => {
                 throw new Error('secret input quoted here');
             },
         };
-        expect(() => runTransform(broken, 'x')).toThrow('Could not transform this text');
+        expect(() => runTransform(broken, 'x')).toThrow(
+            'Could not transform this text',
+        );
     });
 
     it('has unique ids and a label for each', () => {
@@ -1629,7 +1635,10 @@ export function base64Encode(text) {
     const bytes = new TextEncoder().encode(text);
     let out = '';
     for (let i = 0; i < bytes.length; i += 3) {
-        const n = (bytes.at(i) << 16) | ((bytes.at(i + 1) ?? 0) << 8) | (bytes.at(i + 2) ?? 0);
+        const n =
+            (bytes.at(i) << 16) |
+            ((bytes.at(i + 1) ?? 0) << 8) |
+            (bytes.at(i + 2) ?? 0);
         out += B64.charAt((n >> 18) & 63) + B64.charAt((n >> 12) & 63);
         out += i + 1 < bytes.length ? B64.charAt((n >> 6) & 63) : '=';
         out += i + 2 < bytes.length ? B64.charAt(n & 63) : '=';
@@ -1714,8 +1723,14 @@ function words(text) {
         .filter(Boolean);
 }
 
-const toSnake = text => words(text).map(word => word.toLowerCase()).join('_');
-const toKebab = text => words(text).map(word => word.toLowerCase()).join('-');
+const toSnake = text =>
+    words(text)
+        .map(word => word.toLowerCase())
+        .join('_');
+const toKebab = text =>
+    words(text)
+        .map(word => word.toLowerCase())
+        .join('-');
 
 function caseApplies(convert) {
     return text =>
@@ -1771,7 +1786,12 @@ export function createTransforms({ uuid, now }) {
             text => encodeURIComponent(text) !== text,
             text => encodeURIComponent(text),
         ),
-        define('url-decode', 'URL decode', text => /%[0-9A-Fa-f]{2}/.test(text), urlDecode),
+        define(
+            'url-decode',
+            'URL decode',
+            text => /%[0-9A-Fa-f]{2}/.test(text),
+            urlDecode,
+        ),
         define(
             'trim',
             'Trim whitespace',
@@ -1798,7 +1818,12 @@ export function createTransforms({ uuid, now }) {
         ),
         define('snake', 'snake_case', caseApplies(toSnake), toSnake),
         define('kebab', 'kebab-case', caseApplies(toKebab), toKebab),
-        define('epoch-to-iso', 'Unix time → ISO date', text => EPOCH.test(text), epochToIso),
+        define(
+            'epoch-to-iso',
+            'Unix time → ISO date',
+            text => EPOCH.test(text),
+            epochToIso,
+        ),
         define(
             'iso-to-epoch',
             'ISO date → Unix time',
@@ -1806,7 +1831,9 @@ export function createTransforms({ uuid, now }) {
             isoToEpoch,
         ),
         generate('uuid', 'New UUID', () => uuid()),
-        generate('timestamp', 'Current time (ISO)', () => new Date(now()).toISOString()),
+        generate('timestamp', 'Current time (ISO)', () =>
+            new Date(now()).toISOString(),
+        ),
     ]);
 }
 
@@ -1821,7 +1848,9 @@ export function createTransforms({ uuid, now }) {
 export function applicable(transforms, item) {
     const text = item?.kind === KIND.TEXT ? item.text : null;
     const fits = text !== null && text.length <= MAX_TRANSFORM_CHARS;
-    return transforms.filter(transform => transform.generator || (fits && transform.applies(text)));
+    return transforms.filter(
+        transform => transform.generator || (fits && transform.applies(text)),
+    );
 }
 
 /**
@@ -1864,10 +1893,12 @@ git commit -m "feat: add clipboard text transforms"
 ### Task 3: History model
 
 **Files:**
+
 - Modify: `modules/model.js`
 - Test: `tests/model.test.js`
 
 **Interfaces:**
+
 - Consumes: nothing.
 - Produces: `History` with `constructor({size, imageBudget, expireMs, now})`, `now() → number`, getters `items` (newest first, copy), `current` (item|null), `blocked` (`{reason, at}`|null), `imageBytes`; methods `configure({size, imageBudget, expireMs})`, `add(entry) → item|null`, `block(reason)`, `clear()`, `expire() → number`, `nextExpiry() → number|null`, `onChange(callback) → unsubscribe()`. Entries: `{kind: 'text', text}` or `{kind: 'image', data, size, hash}`; stored items add `id` and `addedAt`.
 
@@ -2217,10 +2248,12 @@ git commit -m "feat: add the in-memory clipboard history model"
 ### Task 4: Privacy rules and listing helpers
 
 **Files:**
+
 - Create: `modules/privacy.js`, `modules/listing.js`
 - Test: `tests/privacy.test.js`, `tests/listing.test.js`
 
 **Interfaces:**
+
 - Consumes: `KIND` (model.js).
 - Produces (privacy.js): `SENSITIVE_MIME`, `IMAGE_MIME = 'image/png'`, `MAX_TEXT_CHARS = 1_000_000`, `REASON = {PAUSED, SENSITIVE, IGNORED_APP, TOO_LARGE, UNSUPPORTED}` (values `'paused'`, `'sensitive'`, `'ignored-app'`, `'too-large'`, `'unsupported'`), `VISIBLE_REASONS` (Set of SENSITIVE, IGNORED_APP, TOO_LARGE), `contentKind(mimetypes) → 'text'|'image'|null`, `shouldRecord({mimetypes, appId, paused, ignoredApps, imagesAllowed}) → {record: true, kind} | {record: false, reason}`.
 - Produces (listing.js): `PREVIEW_CHARS = 60`, `fill(template, value) → string`, `preview(text, max?) → string`, `formatSize(bytes) → string`, `rowText(item, _) → string`, `blockedText(reason, _) → string`, `entries({pinned, items, query}) → Array<{pinned: boolean, index?: number, item}>`, `step(index, delta, length) → number`.
@@ -2243,7 +2276,12 @@ import {
 } from '../modules/privacy.js';
 
 const TEXT = ['text/plain;charset=utf-8', 'UTF8_STRING'];
-const base = { appId: 'org.gnome.TextEditor.desktop', paused: false, ignoredApps: [], imagesAllowed: true };
+const base = {
+    appId: 'org.gnome.TextEditor.desktop',
+    paused: false,
+    ignoredApps: [],
+    imagesAllowed: true,
+};
 
 describe('contentKind', () => {
     it('prefers text when both are offered', () => {
@@ -2276,7 +2314,11 @@ describe('shouldRecord', () => {
 
     it('checks pause first, so a paused copy leaves no trace', () => {
         expect(
-            shouldRecord({ ...base, paused: true, mimetypes: [...TEXT, SENSITIVE_MIME] }),
+            shouldRecord({
+                ...base,
+                paused: true,
+                mimetypes: [...TEXT, SENSITIVE_MIME],
+            }),
         ).toEqual({ record: false, reason: REASON.PAUSED });
     });
 
@@ -2288,7 +2330,8 @@ describe('shouldRecord', () => {
 
     it('does not treat an unknown focus as ignored', () => {
         expect(
-            shouldRecord({ ...base, appId: '', ignoredApps: [''], mimetypes: TEXT }).record,
+            shouldRecord({ ...base, appId: '', ignoredApps: [''], mimetypes: TEXT })
+                .record,
         ).toBe(true);
     });
 
@@ -2374,23 +2417,26 @@ describe('rowText and formatSize', () => {
 describe('blockedText', () => {
     it('words each visible reason', () => {
         expect(blockedText(REASON.SENSITIVE, _)).toBe('Sensitive copy skipped');
-        expect(blockedText(REASON.IGNORED_APP, _)).toBe('Copy in an ignored app skipped');
+        expect(blockedText(REASON.IGNORED_APP, _)).toBe(
+            'Copy in an ignored app skipped',
+        );
         expect(blockedText(REASON.TOO_LARGE, _)).toBe('Too large to keep');
         expect(blockedText(REASON.PAUSED, _)).toBe('');
     });
 });
 
 describe('entries', () => {
-    const items = [text('alpha'), { kind: KIND.IMAGE, size: 10, id: 'img' }, text('beta')];
+    const items = [
+        text('alpha'),
+        { kind: KIND.IMAGE, size: 10, id: 'img' },
+        text('beta'),
+    ];
 
     it('lists pins first, then the history', () => {
         const rows = entries({ pinned: ['pin'], items, query: '' });
-        expect(rows.map(row => (row.pinned ? `*${row.item.text}` : row.item.id))).toEqual([
-            '*pin',
-            'alpha',
-            'img',
-            'beta',
-        ]);
+        expect(
+            rows.map(row => (row.pinned ? `*${row.item.text}` : row.item.id)),
+        ).toEqual(['*pin', 'alpha', 'img', 'beta']);
         expect(rows[0].index).toBe(0);
     });
 
@@ -2604,7 +2650,8 @@ export function entries({ pinned, items, query = '' }) {
 
     const rows = [];
     pinned.forEach((text, index) => {
-        if (match(text)) rows.push({ pinned: true, index, item: { kind: KIND.TEXT, text } });
+        if (match(text))
+            rows.push({ pinned: true, index, item: { kind: KIND.TEXT, text } });
     });
     for (const item of items) {
         const shown = item.kind === KIND.IMAGE ? !needle : match(item.text);
@@ -2642,10 +2689,12 @@ git commit -m "feat: add privacy rules and history row helpers"
 ### Task 5: Clipboard adapter and recorder
 
 **Files:**
+
 - Create: `modules/clipboard.js`, `modules/recorder.js`
 - Test: `tests/recorder.test.js`
 
 **Interfaces:**
+
 - Consumes: `History`, `KIND` (model.js); `shouldRecord`, `REASON`, `VISIBLE_REASONS`, `MAX_TEXT_CHARS` (privacy.js); `KEYS`, `SettingsWatcher`, `historyOptions` (settings.js).
 - Produces: `ClipboardSource` with `start(onChange)`, `stop()`, `mimetypes() → string[]`, `focusedAppId() → string`, `readText() → Promise<string|null>`, `readImage() → Promise<{data, size, hash}|null>`, `writeText(text)`, `writeImage(data)`, `destroy()`. `Recorder` with `constructor({source, history, settings, timers})`, `start()`, `listen()`, `deafen()`, `get listening`, `copy(item)`, `copyText(text)`, `destroy()`.
 
@@ -2696,7 +2745,8 @@ describe('Recorder', () => {
 
         expect(texts(history)).toEqual(['hunter2 is my password']);
         expect(console.debug).toHaveBeenCalledWith('[quickclip] recorded text');
-        for (const [line] of console.debug.mock.calls) expect(line).not.toContain('hunter2');
+        for (const [line] of console.debug.mock.calls)
+            expect(line).not.toContain('hunter2');
     });
 
     it('never reads a password manager copy', async () => {
@@ -2946,7 +2996,10 @@ export class ClipboardSource {
                     resolve({
                         data: bytes,
                         size,
-                        hash: GLib.compute_checksum_for_bytes(GLib.ChecksumType.SHA256, bytes),
+                        hash: GLib.compute_checksum_for_bytes(
+                            GLib.ChecksumType.SHA256,
+                            bytes,
+                        ),
                     });
                 },
             );
@@ -3004,7 +3057,11 @@ export class Recorder {
 
     start() {
         this._watcher = new SettingsWatcher(this._settings);
-        for (const key of [KEYS.HISTORY_SIZE, KEYS.IMAGE_BUDGET_MB, KEYS.EXPIRE_MINUTES])
+        for (const key of [
+            KEYS.HISTORY_SIZE,
+            KEYS.IMAGE_BUDGET_MB,
+            KEYS.EXPIRE_MINUTES,
+        ])
             this._watcher.watch(key, () =>
                 this._history.configure(historyOptions(this._settings)),
             );
@@ -3063,7 +3120,9 @@ export class Recorder {
         let entry;
         try {
             entry =
-                decision.kind === KIND.TEXT ? await this._readText() : await this._readImage();
+                decision.kind === KIND.TEXT
+                    ? await this._readText()
+                    : await this._readImage();
         } catch (error) {
             console.debug(`[quickclip] could not read the clipboard: ${error.message}`);
             return;
@@ -3141,10 +3200,12 @@ git commit -m "feat: record clipboard changes into the history"
 ### Task 6: Auto-paste
 
 **Files:**
+
 - Create: `modules/paste.js`
 - Test: `tests/paste.test.js`
 
 **Interfaces:**
+
 - Consumes: Clutter keysyms and virtual devices.
 - Produces: `pasteKeys(appId, terminalApps) → number[]` (keyvals); `Paster` with `constructor({seat?, clock?})`, `paste(keys) → boolean`, `destroy()`.
 
@@ -3169,7 +3230,10 @@ beforeEach(() => {
 
 describe('pasteKeys', () => {
     it('uses Ctrl+V in ordinary apps and Ctrl+Shift+V in terminals', () => {
-        expect(pasteKeys('org.gnome.TextEditor.desktop', DEFAULT_TERMINALS)).toEqual([CTRL, V]);
+        expect(pasteKeys('org.gnome.TextEditor.desktop', DEFAULT_TERMINALS)).toEqual([
+            CTRL,
+            V,
+        ]);
         expect(pasteKeys('com.mitchellh.ghostty.desktop', DEFAULT_TERMINALS)).toEqual([
             CTRL,
             SHIFT,
@@ -3186,7 +3250,9 @@ describe('Paster', () => {
         expect(paster.paste([CTRL, V])).toBe(true);
 
         expect(virtualSeat.devices).toHaveLength(1);
-        expect(virtualSeat.devices[0].type).toBe(Clutter.InputDeviceType.KEYBOARD_DEVICE);
+        expect(virtualSeat.devices[0].type).toBe(
+            Clutter.InputDeviceType.KEYBOARD_DEVICE,
+        );
         expect(virtualSeat.devices[0].events.slice(0, 6)).toEqual([
             [CTRL, PRESSED],
             [SHIFT, PRESSED],
@@ -3311,10 +3377,12 @@ git commit -m "feat: paste through a virtual keyboard"
 ### Task 7: Quick Settings tile
 
 **Files:**
+
 - Create: `modules/panel.js`, `stylesheet.css`
 - Test: `tests/panel.test.js`
 
 **Interfaces:**
+
 - Consumes: `History`, `KIND`; `applicable` (transforms.js); `blockedText`, `fill`, `rowText` (listing.js); `KEYS`, `SettingsWatcher` (settings.js).
 - Produces: `Panel` with `constructor({settings, history, transforms, actions, iconPath, gettext, ngettext})`, `enable()`, `sync()`, `disable()`. `actions` shape (implemented by Task 9's controller): `{copy(item), copyText(text), pin(text), unpin(index), clear(), setPaused(paused), transform(transform), openPrefs()}`.
 
@@ -3415,7 +3483,9 @@ describe('Panel', () => {
             .map(actor => actor.label.text);
         expect(labels).toEqual(['newer', 'newer', 'older']); // current row + recent rows
 
-        const rows = all(toggle).filter(actor => actor.label?.text === 'newer' && actor.activate);
+        const rows = all(toggle).filter(
+            actor => actor.label?.text === 'newer' && actor.activate,
+        );
         rows.at(-1).activate();
         expect(calls).toContainEqual(['copy', newer]);
     });
@@ -3425,11 +3495,15 @@ describe('Panel', () => {
         history.add({ kind: KIND.IMAGE, data: 'png', size: 2048, hash: 'h' });
         history.add({ kind: KIND.TEXT, text: 'keep me' });
 
-        const textRow = all(toggle).filter(actor => actor.label?.text === 'keep me').at(-1);
+        const textRow = all(toggle)
+            .filter(actor => actor.label?.text === 'keep me')
+            .at(-1);
         buttonNamed(textRow, 'Pin').click();
         expect(calls).toContainEqual(['pin', 'keep me']);
 
-        const imageRow = all(toggle).find(actor => actor.label?.text === 'Image · 2.0 KB');
+        const imageRow = all(toggle).find(
+            actor => actor.label?.text === 'Image · 2.0 KB',
+        );
         expect(buttonNamed(imageRow, 'Pin')).toBeUndefined();
     });
 
@@ -3558,7 +3632,11 @@ function textRow(text, props = {}) {
 
 /** A row that says something and cannot be clicked. */
 function noteRow(text, styleClass = '') {
-    const row = textRow(text, { reactive: false, can_focus: false, style_class: styleClass });
+    const row = textRow(text, {
+        reactive: false,
+        can_focus: false,
+        style_class: styleClass,
+    });
     row.setSensitive(false);
     return row;
 }
@@ -3598,7 +3676,11 @@ const QuickClipToggle = GObject.registerClass(
             prefs.connect('activate', () => this._actions?.openPrefs());
             this.menu.addMenuItem(prefs);
 
-            this.connectObject('clicked', () => this._actions?.setPaused(!this.checked), this);
+            this.connectObject(
+                'clicked',
+                () => this._actions?.setPaused(!this.checked),
+                this,
+            );
             // A plain connect, as ButtonBox does: connectObject with this as its
             // own owner could be released by the destroy it is meant to handle.
             this.connect('destroy', () => this._onDestroy());
@@ -3615,7 +3697,10 @@ const QuickClipToggle = GObject.registerClass(
             this.menu.setHeader(
                 this._gicon,
                 _('Clipboard'),
-                fill(this._ngettext('%s item', '%s items', items.length), String(items.length)),
+                fill(
+                    this._ngettext('%s item', '%s items', items.length),
+                    String(items.length),
+                ),
             );
 
             this._syncCurrent(current);
@@ -3623,7 +3708,8 @@ const QuickClipToggle = GObject.registerClass(
             this._syncRecent(items, blocked);
 
             const live = new Set(items.map(item => item.id));
-            for (const id of [...this._thumbs.keys()]) if (!live.has(id)) this._thumbs.delete(id);
+            for (const id of [...this._thumbs.keys()])
+                if (!live.has(id)) this._thumbs.delete(id);
         }
 
         _thumb(item) {
@@ -3635,7 +3721,10 @@ const QuickClipToggle = GObject.registerClass(
         _withThumb(row, item) {
             if (item.kind === KIND.IMAGE)
                 row.insert_child_at_index(
-                    new St.Icon({ gicon: this._thumb(item), style_class: 'quickclip-thumb' }),
+                    new St.Icon({
+                        gicon: this._thumb(item),
+                        style_class: 'quickclip-thumb',
+                    }),
                     1,
                 );
             return row;
@@ -3646,7 +3735,10 @@ const QuickClipToggle = GObject.registerClass(
             this._current.removeAll();
 
             const text = current ? rowText(current, _) : _('Clipboard is empty');
-            const row = this._withThumb(noteRow(text, 'quickclip-current'), current ?? {});
+            const row = this._withThumb(
+                noteRow(text, 'quickclip-current'),
+                current ?? {},
+            );
             this._current.addMenuItem(row);
 
             const choices = applicable(this._transforms, current);
@@ -3663,13 +3755,19 @@ const QuickClipToggle = GObject.registerClass(
             const _ = this._gettext;
             this._pinned.removeAll();
             if (!pinned.length) {
-                this._pinned.addMenuItem(noteRow(_('Pin text from Recent to keep it here')));
+                this._pinned.addMenuItem(
+                    noteRow(_('Pin text from Recent to keep it here')),
+                );
                 return;
             }
             pinned.forEach((text, index) => {
                 const row = textRow(rowText({ kind: KIND.TEXT, text }, _));
                 row.connect('activate', () => this._actions?.copyText(text));
-                row.add_child(rowButton(ICONS.UNPIN, _('Unpin'), () => this._actions?.unpin(index)));
+                row.add_child(
+                    rowButton(ICONS.UNPIN, _('Unpin'), () =>
+                        this._actions?.unpin(index),
+                    ),
+                );
                 this._pinned.addMenuItem(row);
             });
         }
@@ -3688,7 +3786,9 @@ const QuickClipToggle = GObject.registerClass(
                 row.connect('activate', () => this._actions?.copy(item));
                 if (item.kind === KIND.TEXT)
                     row.add_child(
-                        rowButton(ICONS.PIN, _('Pin'), () => this._actions?.pin(item.text)),
+                        rowButton(ICONS.PIN, _('Pin'), () =>
+                            this._actions?.pin(item.text),
+                        ),
                     );
                 this._recent.addMenuItem(row);
             }
@@ -3714,7 +3814,15 @@ export class Panel {
      *   transforms: ReadonlyArray<object>, actions: object, iconPath: string,
      *   gettext: Function, ngettext: Function}} options Dependencies.
      */
-    constructor({ settings, history, transforms, actions, iconPath, gettext, ngettext }) {
+    constructor({
+        settings,
+        history,
+        transforms,
+        actions,
+        iconPath,
+        gettext,
+        ngettext,
+    }) {
         this._settings = settings;
         this._history = history;
         this._transforms = transforms;
@@ -3835,10 +3943,12 @@ git commit -m "feat: add the quick settings tile"
 ### Task 8: Keyboard popup
 
 **Files:**
+
 - Create: `modules/popup.js`
 - Test: `tests/popup.test.js`
 
 **Interfaces:**
+
 - Consumes: `entries`, `rowText`, `step` (listing.js); `applicable` (transforms.js); `KIND`.
 - Produces: `ClipPopup` (GObject subclass of `ModalDialog.ModalDialog`) constructed with `{history, pinned, transforms, gettext, onChoose(item), onTransform(transform, item|null)}`; standard `open() → boolean`, `close()`, destroys itself on close.
 
@@ -3861,8 +3971,14 @@ const _ = message => message;
 
 function build({ pinned = [], texts = [], images = [] } = {}) {
     const timers = createTimers();
-    const history = new History({ size: 20, imageBudget: 32 * MB, expireMs: 0, now: timers.now });
-    for (const hash of images) history.add({ kind: KIND.IMAGE, data: hash, size: 10, hash });
+    const history = new History({
+        size: 20,
+        imageBudget: 32 * MB,
+        expireMs: 0,
+        now: timers.now,
+    });
+    for (const hash of images)
+        history.add({ kind: KIND.IMAGE, data: hash, size: 10, hash });
     for (const text of texts) history.add({ kind: KIND.TEXT, text });
     const chosen = [];
     const popup = new ClipPopup({
@@ -3871,7 +3987,8 @@ function build({ pinned = [], texts = [], images = [] } = {}) {
         transforms: createTransforms({ uuid: () => 'u', now: timers.now }),
         gettext: _,
         onChoose: item => chosen.push(['choose', item]),
-        onTransform: (transform, item) => chosen.push(['transform', transform.id, item]),
+        onTransform: (transform, item) =>
+            chosen.push(['transform', transform.id, item]),
     });
     popup.open();
     const entry = popup.initialKeyFocus;
@@ -3939,7 +4056,9 @@ describe('ClipPopup', () => {
     it('says so when there is nothing to show', () => {
         const { popup } = build();
         expect(rows(popup)).toHaveLength(0);
-        expect(descendants(popup).some(actor => actor.text === 'Nothing copied yet')).toBe(true);
+        expect(
+            descendants(popup).some(actor => actor.text === 'Nothing copied yet'),
+        ).toBe(true);
     });
 
     it('chooses a row that is clicked', () => {
@@ -4017,7 +4136,9 @@ export const ClipPopup = GObject.registerClass(
                 can_focus: true,
                 x_expand: true,
             });
-            this._list = new St.BoxLayout({ orientation: Clutter.Orientation.VERTICAL });
+            this._list = new St.BoxLayout({
+                orientation: Clutter.Orientation.VERTICAL,
+            });
             this._scroll = new St.ScrollView({
                 hscrollbar_policy: St.PolicyType.NEVER,
                 style_class: 'quickclip-scroll',
@@ -4053,10 +4174,12 @@ export const ClipPopup = GObject.registerClass(
                     query: this._entry.get_text(),
                 }).map(row => ({ row, label: rowText(row.item, _) }));
             } else {
-                this._rows = applicable(this._transforms, this._target).map(transform => ({
-                    transform,
-                    label: _(transform.label),
-                }));
+                this._rows = applicable(this._transforms, this._target).map(
+                    transform => ({
+                        transform,
+                        label: _(transform.label),
+                    }),
+                );
             }
 
             this._buttons = this._rows.map((entry, index) =>
@@ -4068,7 +4191,9 @@ export const ClipPopup = GObject.registerClass(
                     this._mode === MODE.HISTORY && !this._entry.get_text()
                         ? _('Nothing copied yet')
                         : _('Nothing matches');
-                this._list.add_child(new St.Label({ text: empty, style_class: 'quickclip-empty' }));
+                this._list.add_child(
+                    new St.Label({ text: empty, style_class: 'quickclip-empty' }),
+                );
             }
 
             this._selected = this._rows.length
@@ -4078,7 +4203,10 @@ export const ClipPopup = GObject.registerClass(
         }
 
         _button(entry, onClick) {
-            const box = new St.BoxLayout({ style_class: 'quickclip-row-box', x_expand: true });
+            const box = new St.BoxLayout({
+                style_class: 'quickclip-row-box',
+                x_expand: true,
+            });
             const item = entry.row?.item;
             if (item?.kind === KIND.IMAGE)
                 box.add_child(
@@ -4088,7 +4216,9 @@ export const ClipPopup = GObject.registerClass(
                     }),
                 );
             if (entry.row?.pinned)
-                box.add_child(new St.Icon({ icon_name: 'starred-symbolic', icon_size: 16 }));
+                box.add_child(
+                    new St.Icon({ icon_name: 'starred-symbolic', icon_size: 16 }),
+                );
             const label = new St.Label({
                 text: entry.label,
                 x_expand: true,
@@ -4152,7 +4282,8 @@ export const ClipPopup = GObject.registerClass(
 
         _toggleMode() {
             if (this._mode === MODE.HISTORY) {
-                this._target = this._selected < 0 ? null : this._rows.at(this._selected).row.item;
+                this._target =
+                    this._selected < 0 ? null : this._rows.at(this._selected).row.item;
                 this._mode = MODE.TRANSFORMS;
             } else {
                 this._mode = MODE.HISTORY;
@@ -4194,10 +4325,12 @@ git commit -m "feat: add the keyboard popup"
 ### Task 9: Controller and extension entry point
 
 **Files:**
+
 - Create: `modules/controller.js`, `extension.js`
 - Test: `tests/controller.test.js`, `tests/extension.test.js`
 
 **Interfaces:**
+
 - Consumes: everything above. `Main.wm.addKeybinding(name, settings, flags, mode, handler)`, `Main.wm.removeKeybinding(name)`, `Main.sessionMode` (`isLocked`, signal `updated`), `Main.notify(title, body)`.
 - Produces: `PASTE_DELAY_MS = 150`; `QuickClip` with `constructor({settings, source, paster, iconPath, gettext, ngettext, openPrefs, uuid, now?, timers?})`, `enable()`, `disable()`, `openPopup()`; default export `QuickClipExtension` in `extension.js`.
 
@@ -4216,7 +4349,12 @@ import { PASTE_DELAY_MS, QuickClip } from '../modules/controller.js';
 import { KIND } from '../modules/model.js';
 import { Paster } from '../modules/paste.js';
 import { KEYS } from '../modules/settings.js';
-import { createClipboard, createSettings, createTimers, flush } from './support/world.js';
+import {
+    createClipboard,
+    createSettings,
+    createTimers,
+    flush,
+} from './support/world.js';
 
 function build(values = {}) {
     const timers = createTimers();
@@ -4555,7 +4693,10 @@ export class QuickClip {
     }
 
     enable() {
-        this._history = new History({ ...historyOptions(this._settings), now: this._now });
+        this._history = new History({
+            ...historyOptions(this._settings),
+            now: this._now,
+        });
         this._transforms = createTransforms({ uuid: this._uuid, now: this._now });
         this._recorder = new Recorder({
             source: this._source,
@@ -4667,7 +4808,8 @@ export class QuickClip {
             copyText: text => this._recorder.copyText(text),
             pin: text => {
                 const pinned = settings.get_strv(KEYS.PINNED);
-                if (!pinned.includes(text)) settings.set_strv(KEYS.PINNED, [...pinned, text]);
+                if (!pinned.includes(text))
+                    settings.set_strv(KEYS.PINNED, [...pinned, text]);
             },
             unpin: index =>
                 settings.set_strv(
@@ -4703,7 +4845,8 @@ export class QuickClip {
             // on the lock screen.
             Main.notify(
                 'QuickClip',
-                fill(_('%s did not apply'), _(transform.label)) + ` — ${_(error.message)}`,
+                fill(_('%s did not apply'), _(transform.label)) +
+                    ` — ${_(error.message)}`,
             );
             return false;
         }
@@ -4727,7 +4870,9 @@ export class QuickClip {
         this._pasteWarned = true;
         Main.notify(
             'QuickClip',
-            this._gettext('Auto-paste is unavailable. The item was copied; paste it yourself.'),
+            this._gettext(
+                'Auto-paste is unavailable. The item was copied; paste it yourself.',
+            ),
         );
     }
 }
@@ -4923,10 +5068,12 @@ git commit -m "feat: wire the controller, lock handling and shortcuts"
 ### Task 10: Preferences and shortcut conflict checks
 
 **Files:**
+
 - Create: `modules/accel.js`, `prefs.js`
 - Test: `tests/accel.test.js`
 
 **Interfaces:**
+
 - Consumes: `KEYS`, `SETTINGS` (settings.js).
 - Produces: `normalizeAccel(accel) → string` ('' when empty or invalid), `findConflicts(accel, bindings) → Array<{source, values}>`.
 
@@ -4940,13 +5087,18 @@ import { describe, expect, it } from 'vitest';
 import { findConflicts, normalizeAccel } from '../modules/accel.js';
 
 const gnome = [
-    { source: 'org.gnome.shell.keybindings toggle-message-tray', values: ['<Super>v', '<Super>m'] },
+    {
+        source: 'org.gnome.shell.keybindings toggle-message-tray',
+        values: ['<Super>v', '<Super>m'],
+    },
     { source: 'org.gnome.desktop.wm.keybindings close', values: ['<Alt>F4'] },
 ];
 
 describe('normalizeAccel', () => {
     it('ignores modifier order, aliases and letter case', () => {
-        expect(normalizeAccel('<Shift><Super>V')).toBe(normalizeAccel('<Super><Shift>v'));
+        expect(normalizeAccel('<Shift><Super>V')).toBe(
+            normalizeAccel('<Super><Shift>v'),
+        );
         expect(normalizeAccel('<Primary>c')).toBe(normalizeAccel('<Control>c'));
         expect(normalizeAccel('<Ctrl>c')).toBe(normalizeAccel('<Control>c'));
         expect(normalizeAccel('<Mod4>a')).toBe(normalizeAccel('<Super>a'));
@@ -5027,9 +5179,10 @@ export function normalizeAccel(accel) {
         rest = rest.slice(match[0].length);
     }
     if (!rest) return '';
-    return [...[...modifiers].sort().map(modifier => `<${modifier}>`), rest.toLowerCase()].join(
-        '',
-    );
+    return [
+        ...[...modifiers].sort().map(modifier => `<${modifier}>`),
+        rest.toLowerCase(),
+    ].join('');
 }
 
 /**
@@ -5085,7 +5238,8 @@ const KEYBINDING_SCHEMAS = [
     'org.gnome.settings-daemon.plugins.media-keys',
 ];
 const MEDIA_KEYS = 'org.gnome.settings-daemon.plugins.media-keys';
-const CUSTOM_KEYBINDING = 'org.gnome.settings-daemon.plugins.media-keys.custom-keybinding';
+const CUSTOM_KEYBINDING =
+    'org.gnome.settings-daemon.plugins.media-keys.custom-keybinding';
 
 function describe(key) {
     return SETTINGS.find(setting => setting.key === key);
@@ -5193,12 +5347,19 @@ function shortcutRow(window, settings, key) {
             }
             const others = [KEYS.POPUP_SHORTCUT, KEYS.PAUSE_SHORTCUT]
                 .filter(other => other !== key)
-                .map(other => ({ source: 'QuickClip', values: settings.get_strv(other) }));
+                .map(other => ({
+                    source: 'QuickClip',
+                    values: settings.get_strv(other),
+                }));
             const [conflict] = findConflicts(accel, [...systemBindings(), ...others]);
             if (conflict) {
                 window.add_toast(
                     new Adw.Toast({
-                        title: format(_('%s is already used by %s'), accel, conflict.source),
+                        title: format(
+                            _('%s is already used by %s'),
+                            accel,
+                            conflict.source,
+                        ),
                     }),
                 );
                 return;
@@ -5252,10 +5413,15 @@ function appListGroup(settings, key, title) {
         for (const row of rows) group.remove(row);
         rows.length = 0;
         for (const id of settings.get_strv(key)) {
-            const name = apps.find(app => app.get_id() === id)?.get_display_name() ?? id;
+            const name =
+                apps.find(app => app.get_id() === id)?.get_display_name() ?? id;
             // Adw rows parse titles as markup by default; an app name with "&"
             // would break it.
-            const row = new Adw.ActionRow({ title: name, subtitle: id, use_markup: false });
+            const row = new Adw.ActionRow({
+                title: name,
+                subtitle: id,
+                use_markup: false,
+            });
             const remove = new Gtk.Button({
                 icon_name: 'user-trash-symbolic',
                 tooltip_text: _('Remove'),
@@ -5284,11 +5450,15 @@ function pinnedGroup(settings) {
         title: _(info.label),
         description: _('Stored in your settings. Pin multi-line text from the menu.'),
     });
-    const entry = new Adw.EntryRow({ title: _('Add a snippet'), show_apply_button: true });
+    const entry = new Adw.EntryRow({
+        title: _('Add a snippet'),
+        show_apply_button: true,
+    });
     entry.connect('apply', () => {
         const text = entry.text;
         const pinned = settings.get_strv(KEYS.PINNED);
-        if (text && !pinned.includes(text)) settings.set_strv(KEYS.PINNED, [...pinned, text]);
+        if (text && !pinned.includes(text))
+            settings.set_strv(KEYS.PINNED, [...pinned, text]);
         entry.text = '';
     });
     group.add(entry);
@@ -5389,7 +5559,11 @@ export default class QuickClipPreferences extends ExtensionPreferences {
             icon_name: 'application-x-executable-symbolic',
         });
         const ignored = appListGroup(settings, KEYS.IGNORED_APPS, _('Ignored apps'));
-        const terminals = appListGroup(settings, KEYS.TERMINAL_APPS, _('Terminal apps'));
+        const terminals = appListGroup(
+            settings,
+            KEYS.TERMINAL_APPS,
+            _('Terminal apps'),
+        );
         apps.add(ignored.group);
         apps.add(terminals.group);
         releases.push(ignored.release, terminals.release);
@@ -5424,9 +5598,11 @@ git commit -m "feat: add preferences with shortcut conflict checks"
 ### Task 11: Live checks and a green `just ci` (minus docs)
 
 **Files:**
+
 - Create: `scripts/headless-check.sh`, `scripts/pack-check.sh`, `scripts/icon-check.js`
 
 **Interfaces:**
+
 - Consumes: the log markers `[quickclip] enabled (v…)`, `[quickclip] listening`, `[quickclip] recorded text`, `[quickclip] skipped sensitive`.
 
 - [ ] **Step 1: Copy and adapt the scripts**
@@ -5516,9 +5692,11 @@ git commit -m "test: add headless shell and packaging checks"
 ### Task 12: README, security policy and docs site
 
 **Files:**
+
 - Create: `README.md`, `SECURITY.md`, `playwright.config.js` (copy), `docs/index.html`, `docs/style.css` (copy), `docs/.nojekyll` (copy), `docs/assets/**` (copy), `tests/docs.spec.js`
 
 **Interfaces:**
+
 - Consumes: facts from `metadata.json`, the gschema, the spec.
 
 - [ ] **Step 1: Copy the shared site assets and browser-test config**
@@ -5563,15 +5741,15 @@ Keep the page's structure, classes, SVG icons, skip link, header, TOC (desktop `
 3. Hero: eyebrow "GNOME Shell extension"; tagline "A private clipboard history in GNOME quick settings."; lede "Keeps your last copies — text and images — in memory only, skips what your password manager copies, and turns JSON, base64, URLs and timestamps into what you need. Super+Shift+V opens it from the keyboard."; chips `GNOME Shell 50`, `Memory only`, `GPL-3.0-or-later`; version chip `v0.1.0`.
 4. Hero figure: rebuild the mock (`figure.shot`) as the QuickClip tile menu — top bar with clock, the open menu showing a "Clipboard · 3 items" header, a Current row `{"id":42,"name":"ghost"}` with a "Transform" row, a Pinned row `ssh-ed25519 AAAAC3Nz…` with a star, Recent rows `kubectl get pods -A`, `https://ghost-assembly.github.io/`, and an italic "Sensitive copy skipped" row. Reuse the existing mock classes; add any new ones at the end of `docs/style.css` under `/* QuickClip mock */`, using only existing color tokens. Update the figure's `aria-label` to describe exactly that content.
 5. TOC and sections, numbered 01–09 in the order of the `sections` array above. Content for each (write it as prose and short lists, American English, in the voice of QuickMusic's page; claims must match the code):
-   - **Overview** — one tile, one popup; what it records (text, PNG images); memory only; the tile's click pauses; menu parts (Current + Transform, Pinned, Recent, Clear history, Preferences); blocked-copy rows.
-   - **Install** — the three commands from QuickMusic's README with the QuickClip uuid; from a clone `just setup && just install && just enable`; log out and in on Wayland.
-   - **Privacy** — memory only; pinned snippets are the only stored content (GSettings/dconf) and only on request; `x-kde-passwordManagerHint` skipped (KeePassXC and others that follow the KDE convention; name that apps which do not set it, such as some Electron password managers, are not detected — use Ignored apps for those); ignored apps are approximate (focused app at copy time); pause; expiry (one timer, none while empty); lock screen behavior for both `clear-on-lock` settings and why `unlock-dialog` is declared; no content in logs or notifications; memory is freed by dropping references, and the JavaScript engine may keep old strings until garbage collection.
-   - **Transforms** — a table of every transform label with an example input → output, which are offered when, the 100 000-character limit, generators; date-times without a zone are read as local time.
-   - **Preferences** — a table of every setting with its default (from the gschema), including the terminal list with Ghostty; the conflict check and its limit (other extensions' shortcuts are not visible to it).
-   - **Keyboard & mouse** — Super+Shift+V; ↑/↓, Enter, Tab, Esc (twice), typing filters; auto-paste delay and Ctrl+Shift+V in terminals; the tile menu copies without pasting; Super+V stays GNOME's.
-   - **Architecture** — the module table from the spec, the data flow, what is excluded from coverage and why.
-   - **Development** — `just` recipes table (from the justfile), `just test-live`, and the **manual checklist** from Task 14 Step 3.
-   - **Releasing** — as QuickMusic's, with names changed (tag `vX.Y.Z` must match `metadata.json` and `package.json`).
+    - **Overview** — one tile, one popup; what it records (text, PNG images); memory only; the tile's click pauses; menu parts (Current + Transform, Pinned, Recent, Clear history, Preferences); blocked-copy rows.
+    - **Install** — the three commands from QuickMusic's README with the QuickClip uuid; from a clone `just setup && just install && just enable`; log out and in on Wayland.
+    - **Privacy** — memory only; pinned snippets are the only stored content (GSettings/dconf) and only on request; `x-kde-passwordManagerHint` skipped (KeePassXC and others that follow the KDE convention; name that apps which do not set it, such as some Electron password managers, are not detected — use Ignored apps for those); ignored apps are approximate (focused app at copy time); pause; expiry (one timer, none while empty); lock screen behavior for both `clear-on-lock` settings and why `unlock-dialog` is declared; no content in logs or notifications; memory is freed by dropping references, and the JavaScript engine may keep old strings until garbage collection.
+    - **Transforms** — a table of every transform label with an example input → output, which are offered when, the 100 000-character limit, generators; date-times without a zone are read as local time.
+    - **Preferences** — a table of every setting with its default (from the gschema), including the terminal list with Ghostty; the conflict check and its limit (other extensions' shortcuts are not visible to it).
+    - **Keyboard & mouse** — Super+Shift+V; ↑/↓, Enter, Tab, Esc (twice), typing filters; auto-paste delay and Ctrl+Shift+V in terminals; the tile menu copies without pasting; Super+V stays GNOME's.
+    - **Architecture** — the module table from the spec, the data flow, what is excluded from coverage and why.
+    - **Development** — `just` recipes table (from the justfile), `just test-live`, and the **manual checklist** from Task 14 Step 3.
+    - **Releasing** — as QuickMusic's, with names changed (tag `vX.Y.Z` must match `metadata.json` and `package.json`).
 
 - [ ] **Step 4: Write `README.md`**
 
@@ -5598,6 +5776,7 @@ git commit -m "docs: add README, security policy and documentation site"
 ### Task 13: List QuickClip on the org hub and profile
 
 **Files (other repositories):**
+
 - Modify: `../ghost-assembly.github.io/docs/index.html`, `../ghost-assembly.github.io/tests/site.spec.js`
 - Modify: `../.github/profile/README.md`
 
@@ -5626,24 +5805,22 @@ Expected: FAIL — the card count and the QuickClip card are missing.
 In `../ghost-assembly.github.io/docs/index.html`, insert before the QuickMusic `<article class="project">`:
 
 ```html
-                        <article class="project">
-                            <h4>QuickClip</h4>
-                            <p class="meta">GNOME 50</p>
-                            <p>
-                                A private clipboard history in Quick Settings. Memory
-                                only, skips password-manager copies, and transforms
-                                JSON, base64, URLs and timestamps.
-                            </p>
-                            <p class="links">
-                                <a href="https://ghost-assembly.github.io/quickclip/"
-                                    >Docs<span class="vh"> for QuickClip</span></a
-                                >
-                                <a href="https://github.com/Ghost-Assembly/quickclip"
-                                    >Source<span class="vh"> for QuickClip</span></a
-                                >
-                            </p>
-                        </article>
-
+<article class="project">
+    <h4>QuickClip</h4>
+    <p class="meta">GNOME 50</p>
+    <p>
+        A private clipboard history in Quick Settings. Memory only, skips
+        password-manager copies, and transforms JSON, base64, URLs and timestamps.
+    </p>
+    <p class="links">
+        <a href="https://ghost-assembly.github.io/quickclip/"
+            >Docs<span class="vh"> for QuickClip</span></a
+        >
+        <a href="https://github.com/Ghost-Assembly/quickclip"
+            >Source<span class="vh"> for QuickClip</span></a
+        >
+    </p>
+</article>
 ```
 
 Change the `<meta name="description">` content's project list to "QuickClip, QuickMusic, QuickRem, QuickTiler, QuickTS and awsdiag". In `AGENTS.md`, add `/quickclip/` to the list of project docs paths under "What gets published".

@@ -27,18 +27,18 @@ keybinding schemas, custom keybindings and installed extensions.
 - **Pinned snippets:** text only, persisted in GSettings (`pinned` strv) — the only thing ever
   written to disk, and only by explicit user action. Images can't be pinned.
 - **Privacy:**
-  - Always skip copies whose MIME list includes `x-kde-passwordManagerHint` (KeePassXC etc.).
-  - Pause toggle (tile click, optional pause shortcut — unbound by default).
-  - Ignore apps: skip while a listed app's window is focused at copy time (approximate;
-    Wayland exposes no copy owner). Documented as approximate.
-  - Expire unpinned items after N minutes (default 30, 0 = off), via **one** GLib timeout for
-    `model.nextExpiry()` — nothing scheduled while history is empty.
-  - Screen lock: on lock, disconnect the clipboard listener and close any open UI; keybindings
-    registered for `Shell.ActionMode.NORMAL` only. If `clear-on-lock` (default **true**) clear
-    history; otherwise keep it in memory and resume on unlock. No encrypted-file persistence
-    (considered and rejected: key would be as reachable as memory; moves data to disk).
-  - Blocked copies show as a disabled row ("sensitive copy skipped" / "ignored app" / "image
-    too large") so protection is visible.
+    - Always skip copies whose MIME list includes `x-kde-passwordManagerHint` (KeePassXC etc.).
+    - Pause toggle (tile click, optional pause shortcut — unbound by default).
+    - Ignore apps: skip while a listed app's window is focused at copy time (approximate;
+      Wayland exposes no copy owner). Documented as approximate.
+    - Expire unpinned items after N minutes (default 30, 0 = off), via **one** GLib timeout for
+      `model.nextExpiry()` — nothing scheduled while history is empty.
+    - Screen lock: on lock, disconnect the clipboard listener and close any open UI; keybindings
+      registered for `Shell.ActionMode.NORMAL` only. If `clear-on-lock` (default **true**) clear
+      history; otherwise keep it in memory and resume on unlock. No encrypted-file persistence
+      (considered and rejected: key would be as reachable as memory; moves data to disk).
+    - Blocked copies show as a disabled row ("sensitive copy skipped" / "ignored app" / "image
+      too large") so protection is visible.
 - **Access:** Quick Settings tile + popup on a shortcut. **Never override a default shortcut**:
   default popup shortcut `<Super><Shift>v`; the prefs shortcut editor warns when a chosen
   accelerator is already bound elsewhere.
@@ -51,16 +51,16 @@ keybinding schemas, custom keybindings and installed extensions.
 
 ## Architecture (mirrors `quickmusic/`)
 
-| Module | Job | Deps |
-|---|---|---|
-| `modules/model.js` | history: add/dedupe, count + image-budget caps, pin/unpin, `expire(now)`, `nextExpiry()`, clear, change callbacks | none (pure) |
-| `modules/transforms.js` | `{id, label, applies(text), run(text)}` list; uuid/clock injected | none (pure) |
-| `modules/privacy.js` | `shouldRecord({mimetypes, appId, paused, ignored})` → `{record, reason}` | none (pure) |
-| `modules/clipboard.js` | `Meta.Selection` `owner-changed` (CLIPBOARD) → read via `St.Clipboard`; write text/image | Meta, St |
-| `modules/paste.js` | virtual keyboard device; Ctrl+V / Ctrl+Shift+V by focused app id | Clutter, Shell |
-| `modules/panel.js` | `QuickMenuToggle`: subtitle Recording/Paused; menu Current (+transform row), Pinned, Recent, Clear history, Preferences | Shell UI |
-| `modules/popup.js` | modal list: Pinned then Recent; type-to-filter text; ↑/↓, Enter = copy+paste, Tab = transform row, Esc | Shell UI |
-| `modules/settings.js`, `prefs.js` | GSettings wrapper; Adw prefs window | Gio, Adw |
+| Module                            | Job                                                                                                                     | Deps           |
+| --------------------------------- | ----------------------------------------------------------------------------------------------------------------------- | -------------- |
+| `modules/model.js`                | history: add/dedupe, count + image-budget caps, pin/unpin, `expire(now)`, `nextExpiry()`, clear, change callbacks       | none (pure)    |
+| `modules/transforms.js`           | `{id, label, applies(text), run(text)}` list; uuid/clock injected                                                       | none (pure)    |
+| `modules/privacy.js`              | `shouldRecord({mimetypes, appId, paused, ignored})` → `{record, reason}`                                                | none (pure)    |
+| `modules/clipboard.js`            | `Meta.Selection` `owner-changed` (CLIPBOARD) → read via `St.Clipboard`; write text/image                                | Meta, St       |
+| `modules/paste.js`                | virtual keyboard device; Ctrl+V / Ctrl+Shift+V by focused app id                                                        | Clutter, Shell |
+| `modules/panel.js`                | `QuickMenuToggle`: subtitle Recording/Paused; menu Current (+transform row), Pinned, Recent, Clear history, Preferences | Shell UI       |
+| `modules/popup.js`                | modal list: Pinned then Recent; type-to-filter text; ↑/↓, Enter = copy+paste, Tab = transform row, Esc                  | Shell UI       |
+| `modules/settings.js`, `prefs.js` | GSettings wrapper; Adw prefs window                                                                                     | Gio, Adw       |
 
 Data flow: `owner-changed` → `privacy.shouldRecord` → read content → `model.add` → tile and
 popup re-render. `disable()` disconnects every signal, removes the timeout, destroys the virtual
@@ -117,4 +117,3 @@ row; virtual device creation fails → copy-only + one notification.
   nothing recorded while locked); expiry fires; pause blocks recording; ignored app blocked;
   large image rejected; Super+V still opens the message tray.
 - Hub site: its own `just ci` passes with the new card.
-

@@ -7,6 +7,7 @@ import { descendants, liveHandlers, resetActors } from './support/actors.js';
 import { PASTE_DELAY_MS, QuickClip } from '../modules/controller.js';
 import { Paster } from '../modules/paste.js';
 import { KEYS } from '../modules/settings.js';
+import { MAX_TRANSFORM_CHARS } from '../modules/transforms.js';
 import {
     createClipboard,
     createSettings,
@@ -334,6 +335,12 @@ describe('QuickClip', () => {
 
         app._actions.openPrefs();
         expect(prefsOpened()).toBe(1);
+    });
+
+    it('refuses to pin text longer than a transform would take', () => {
+        const { app, settings } = build();
+        app._actions.pin('x'.repeat(MAX_TRANSFORM_CHARS + 1));
+        expect(settings.get_strv(KEYS.PINNED)).toEqual([]);
     });
 
     it('copies from the tile without pasting', async () => {

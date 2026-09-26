@@ -1,10 +1,13 @@
-// How history items read in a menu or the popup, and which ones show.
+// How history items read in a menu or the popup, which ones show, and which
+// can be pinned.
 //
-// Imports only pure modules. Every string built here is set as a label's
-// `text`, never as markup, so a copy of "<b>" shows as exactly that.
+// Imports only pure modules, so prefs.js can load it too. Every string built
+// here is set as a label's `text`, never as markup, so a copy of "<b>" shows
+// as exactly that.
 
 import { KIND } from './model.js';
 import { REASON } from './privacy.js';
+import { MAX_TRANSFORM_CHARS } from './transforms.js';
 
 /** Characters shown for a text item. */
 export const PREVIEW_CHARS = 60;
@@ -90,6 +93,17 @@ export function blockedText(reason, _) {
         default:
             return '';
     }
+}
+
+/**
+ * Whether text may be pinned. A pin is stored in GSettings, which is not meant
+ * for megabytes, so the cap is the transform limit.
+ *
+ * @param {string} text The text to pin.
+ * @returns {boolean} True for non-empty text of at most MAX_TRANSFORM_CHARS.
+ */
+export function pinnable(text) {
+    return text.length > 0 && text.length <= MAX_TRANSFORM_CHARS;
 }
 
 /**

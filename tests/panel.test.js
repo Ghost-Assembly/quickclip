@@ -6,7 +6,7 @@ import { History, KIND } from '../modules/model.js';
 import { Panel } from '../modules/panel.js';
 import { REASON } from '../modules/privacy.js';
 import { KEYS } from '../modules/settings.js';
-import { createTransforms } from '../modules/transforms.js';
+import { MAX_TRANSFORM_CHARS, createTransforms } from '../modules/transforms.js';
 import { MB, createSettings, createTimers } from './support/world.js';
 
 const _ = message => message;
@@ -113,6 +113,16 @@ describe('Panel', () => {
             actor => actor.label?.text === 'Image · 2.0 KB',
         );
         expect(buttonNamed(imageRow, 'Pin')).toBeUndefined();
+    });
+
+    it('offers no pin for text too long to keep in settings', () => {
+        const { toggle, history } = build();
+        history.add({ kind: KIND.TEXT, text: 'y'.repeat(MAX_TRANSFORM_CHARS + 1) });
+        const row = all(toggle)
+            .filter(actor => actor.label?.text?.startsWith('yyy'))
+            .at(-1);
+        expect(row).toBeDefined();
+        expect(buttonNamed(row, 'Pin')).toBeUndefined();
     });
 
     it('shows pinned snippets that copy and unpin', () => {

@@ -12,7 +12,7 @@ import Shell from 'gi://Shell';
 
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 
-import { fill } from './listing.js';
+import { fill, pinnable } from './listing.js';
 import { History, KIND } from './model.js';
 import { Panel } from './panel.js';
 import { pasteKeys } from './paste.js';
@@ -189,6 +189,7 @@ export class QuickClip {
             copy: item => this._recorder.copy(item),
             copyText: text => this._recorder.copyText(text),
             pin: text => {
+                if (!pinnable(text)) return;
                 const pinned = settings.get_strv(KEYS.PINNED);
                 if (!pinned.includes(text))
                     settings.set_strv(KEYS.PINNED, [...pinned, text]);

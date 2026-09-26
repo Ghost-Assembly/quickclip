@@ -8,11 +8,13 @@ import {
     entries,
     fill,
     formatSize,
+    pinnable,
     preview,
     rowText,
     step,
 } from '../modules/listing.js';
 import { REASON } from '../modules/privacy.js';
+import { MAX_TRANSFORM_CHARS } from '../modules/transforms.js';
 
 const _ = message => message;
 const text = value => ({ kind: KIND.TEXT, text: value, id: value });
@@ -108,6 +110,15 @@ describe('entries', () => {
             [true, true],
             [false, true],
         ]);
+    });
+});
+
+describe('pinnable', () => {
+    it('takes text up to the transform limit, and nothing blank or longer', () => {
+        expect(pinnable('snippet')).toBe(true);
+        expect(pinnable('x'.repeat(MAX_TRANSFORM_CHARS))).toBe(true);
+        expect(pinnable('x'.repeat(MAX_TRANSFORM_CHARS + 1))).toBe(false);
+        expect(pinnable('')).toBe(false);
     });
 });
 

@@ -2,8 +2,9 @@
 // resource:// modules — so nothing here may import the Shell-side modules.
 //
 // It holds only widget construction; the key list and wording live in
-// modules/settings.js and the shortcut rules in modules/accel.js, both tested
-// on plain Node. This file is excluded from coverage for that reason.
+// modules/settings.js, the shortcut rules in modules/accel.js and the pin
+// limit in modules/listing.js, all tested on plain Node. This file is excluded
+// from coverage for that reason.
 
 import Adw from 'gi://Adw';
 import Gdk from 'gi://Gdk';
@@ -16,6 +17,7 @@ import {
 } from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
 
 import { findConflicts } from './modules/accel.js';
+import { pinnable } from './modules/listing.js';
 import { KEYS, SETTINGS } from './modules/settings.js';
 
 /** Schemas whose `as` keys are keyboard shortcuts GNOME itself owns. */
@@ -250,7 +252,7 @@ function pinnedGroup(settings) {
     entry.connect('apply', () => {
         const text = entry.text;
         const pinned = settings.get_strv(KEYS.PINNED);
-        if (text && !pinned.includes(text))
+        if (pinnable(text) && !pinned.includes(text))
             settings.set_strv(KEYS.PINNED, [...pinned, text]);
         entry.text = '';
     });

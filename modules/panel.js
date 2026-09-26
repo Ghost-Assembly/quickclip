@@ -13,7 +13,7 @@ import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import * as PopupMenu from 'resource:///org/gnome/shell/ui/popupMenu.js';
 import * as QuickSettings from 'resource:///org/gnome/shell/ui/quickSettings.js';
 
-import { blockedText, fill, rowText } from './listing.js';
+import { blockedText, fill, pinnable, rowText } from './listing.js';
 import { KIND } from './model.js';
 import { KEYS, SettingsWatcher } from './settings.js';
 import { applicable } from './transforms.js';
@@ -206,7 +206,7 @@ const QuickClipToggle = GObject.registerClass(
             for (const item of items) {
                 const row = this._withThumb(textRow(rowText(item, _)), item);
                 row.connect('activate', () => this._actions?.copy(item));
-                if (item.kind === KIND.TEXT)
+                if (item.kind === KIND.TEXT && pinnable(item.text))
                     row.add_child(
                         rowButton(ICONS.PIN, _('Pin'), () =>
                             this._actions?.pin(item.text),

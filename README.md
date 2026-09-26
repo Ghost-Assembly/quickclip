@@ -2,9 +2,10 @@
 
 A private clipboard history in GNOME quick settings, with developer transforms.
 
-Keeps your last copies — text and images — in memory only, skips what your
-password manager copies, and turns JSON, base64, URLs and timestamps into what
-you need. Super+Shift+V opens it from the keyboard.
+Keeps your last copies — text and images — in memory only, skips copies that
+KeePassXC and other password managers mark as secret, and turns JSON, base64,
+URLs and timestamps into what you need. Super+Shift+V opens it from the
+keyboard.
 
 **[Documentation →](https://ghost-assembly.github.io/quickclip/)** —
 architecture, testing, packaging and releasing.
@@ -54,7 +55,7 @@ Wayland, log out and back in.
 
 ## Preferences
 
-| Setting                | Default                                                                         |                                                                    |
+| Setting                | Default                                                                         | Note                                                               |
 | ---------------------- | ------------------------------------------------------------------------------- | ------------------------------------------------------------------ |
 | History size           | 20                                                                              | 5–100; oldest copies are dropped first                             |
 | Image memory (MB)      | 32                                                                              | 0–256; 0 keeps no images                                           |
@@ -79,8 +80,8 @@ just test-live    # headless gnome-shell smoke test, then the packed zip
 just docs         # serve the documentation site
 ```
 
-Every decision lives in a module that imports nothing else in the project;
-see the
+Every decision lives in a module that imports no GNOME API, so the unit suite
+tests it on plain Node; see the
 [architecture notes](https://ghost-assembly.github.io/quickclip/#architecture).
 
 ## Releasing

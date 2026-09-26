@@ -69,7 +69,8 @@ const QuickClipToggle = GObject.registerClass(
             this._ngettext = ngettext;
             this._actions = actions;
             this._transforms = transforms;
-            // Item id -> icon, so St does not decode a PNG on every rebuild.
+            // Item id -> icon: one Gio.BytesIcon per image, reused across
+            // rebuilds instead of a new one each time.
             this._thumbs = new Map();
 
             this._current = new PopupMenu.PopupMenuSection();

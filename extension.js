@@ -40,6 +40,12 @@ export default class QuickClipExtension extends Extension {
         console.debug(`[quickclip] enabled (v${this.metadata['version-name'] ?? '?'})`);
     }
 
+    // metadata.json declares the unlock-dialog session mode, so this is not
+    // called when the screen locks. That is deliberate: with "Clear on lock"
+    // off, the history is kept in memory across a lock. While locked,
+    // modules/controller.js removes the tile, the popup and both keybindings
+    // and stops listening to the clipboard, so QuickClip shows nothing,
+    // records nothing and has no shortcuts until the session is unlocked.
     disable() {
         // Ordered: the controller first, so nothing it owns can reach a
         // source or paster that is already gone.

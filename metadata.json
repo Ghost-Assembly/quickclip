@@ -1,7 +1,7 @@
 {
     "uuid": "quickclip@napalm255.github.io",
     "name": "QuickClip",
-    "description": "A private clipboard history in the quick settings menu, with developer transforms. Keeps your recent copies in memory only, never records what a password manager copies, and can pretty-print JSON, decode base64 and more. Super+Shift+V opens it from the keyboard.\n\nUses the unlock-dialog session mode only so the history can be kept, in memory, across a screen lock when you turn off \"Clear on lock\". While the screen is locked QuickClip shows nothing, records nothing and removes its shortcuts.",
+    "description": "A private clipboard history in the quick settings menu, with developer transforms. Keeps your recent copies in memory only, skips copies that KeePassXC and other password managers mark as secret, and can pretty-print JSON, decode base64 and more. Super+Shift+V opens it from the keyboard.\n\nUses the unlock-dialog session mode only so the history can be kept, in memory, across a screen lock when you turn off \"Clear on lock\". While the screen is locked QuickClip shows nothing, records nothing and removes its shortcuts.",
     "shell-version": ["50"],
     "session-modes": ["user", "unlock-dialog"],
     "url": "https://github.com/Ghost-Assembly/quickclip",

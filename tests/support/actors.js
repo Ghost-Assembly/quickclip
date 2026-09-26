@@ -1,7 +1,7 @@
 // A recording stand-in for a Clutter actor.
 //
 // The stubs under tests/stubs/ are built on this. It exists so that
-// tests/panel.test.js can assert QuickMusic's own bookkeeping — how many handlers
+// tests/panel.test.js can assert QuickClip's own bookkeeping — how many handlers
 // are connected, how many are left after destroy, what style was applied, which
 // children were added — rather than asserting that a stub behaves like a stub.
 //

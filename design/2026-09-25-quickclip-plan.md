@@ -5883,13 +5883,13 @@ Tick each, noting anything that fails:
 - [ ] Take a screenshot to the clipboard → an Image row with a thumbnail and size.
 - [ ] Super+Shift+V opens the popup; typing filters; ↑/↓ move; Enter pastes into the previous window (GTK app: Ctrl+V); in Ptyxis it pastes with Ctrl+Shift+V. If Ghostty is available, check it too.
 - [ ] Tab shows transforms for `{"a":1}`; Enter on Pretty-print JSON pastes the pretty result.
-- [ ] A failing transform (e.g. forcing URL decode on `%E0%A4%A`) is not offered; no notification ever quotes clipboard text.
+- [ ] Copy `%E0%A4%A` and choose URL decode → a notification reads "URL decode did not apply — Not valid URL encoding", quoting nothing from the clipboard, and the clipboard is unchanged. No notification ever quotes clipboard text.
 - [ ] Pin from Recent; the snippet appears under Pinned and in prefs; unpin works from both.
 - [ ] Set expiry to 1 minute; a copy disappears after about a minute.
 - [ ] Lock the screen: the lock screen's quick settings has no QuickClip tile; Super+Shift+V does nothing; unlock → history empty (clear-on-lock on).
 - [ ] Turn clear-on-lock off, copy something, lock, unlock → it is still listed; copies made while locked are not.
 - [ ] Super+V still opens GNOME's notification list.
-- [ ] In prefs, setting the popup shortcut to Super+V is refused with a toast naming `toggle-message-tray`.
+- [ ] In prefs, choose Set… for the popup shortcut: the Shell asks whether to allow the app to inhibit shortcuts. Allow it, then press Super+V → the message tray stays shut and the shortcut is refused with a toast naming `toggle-message-tray`.
 - [ ] `just logs` shows only `[quickclip]` lines with kinds and reasons — no clipboard content.
 
 - [ ] **Step 4: Report and ask about publishing**

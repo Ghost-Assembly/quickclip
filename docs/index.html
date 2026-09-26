@@ -6,7 +6,7 @@
         <title>QuickClip · Ghost Assembly</title>
         <meta
             name="description"
-            content="A private clipboard history in GNOME quick settings, with developer transforms. Memory only; password-manager copies are never recorded."
+            content="A private clipboard history in GNOME quick settings, with developer transforms. Memory only; copies that KeePassXC and other password managers mark as secret are never recorded."
         />
         <meta name="color-scheme" content="dark light" />
         <meta name="theme-color" content="#03030a" />
@@ -26,7 +26,7 @@
         <meta property="og:title" content="QuickClip" />
         <meta
             property="og:description"
-            content="A private clipboard history in GNOME quick settings, with developer transforms. Memory only; password-manager copies are never recorded."
+            content="A private clipboard history in GNOME quick settings, with developer transforms. Memory only; copies that KeePassXC and other password managers mark as secret are never recorded."
         />
         <meta property="og:url" content="https://ghost-assembly.github.io/quickclip/" />
         <meta
@@ -94,9 +94,9 @@
                     </p>
                     <p class="lede">
                         Keeps your last copies — text and images — in memory only, skips
-                        what your password manager copies, and turns JSON, base64, URLs
-                        and timestamps into what you need. Super+Shift+V opens it from
-                        the keyboard.
+                        copies that KeePassXC and other password managers mark as
+                        secret, and turns JSON, base64, URLs and timestamps into what
+                        you need. Super+Shift+V opens it from the keyboard.
                     </p>
                     <ul class="chips" aria-label="At a glance">
                         <li class="chip">GNOME Shell 50</li>
@@ -517,9 +517,11 @@
                             ></span>
                             <h3>Text and images</h3>
                             <p>
-                                Plain text and PNG screenshots are recorded. Anything
-                                else — files, or a rich format with no plain-text or PNG
-                                fallback — is left on the clipboard, untouched.
+                                Plain text and PNG screenshots are recorded. File
+                                managers usually offer copied files as plain text too,
+                                so a copied file is recorded as the text of its path. A
+                                rich format with no plain-text or PNG fallback is left
+                                on the clipboard, untouched.
                             </p>
                         </article>
                         <article class="card">
@@ -687,7 +689,10 @@
                                 ><strong>Expiry.</strong> Set <em>Expire after</em> in
                                 Preferences and a copy older than that is dropped.
                                 QuickClip keeps a single timer for whichever item is due
-                                next, and none at all while the history is empty.</span
+                                next, and none at all while the history is empty. That
+                                timer stands still while the computer sleeps, so expired
+                                copies are also dropped whenever the menu or the popup
+                                opens, and on unlock.</span
                             >
                         </li>
                     </ul>
@@ -924,9 +929,10 @@
                         </tbody>
                     </table>
                     <p>
-                        A transform only looks at the first 100,000 characters of a
-                        copy; a longer one offers none. A date-time with no time zone is
-                        read as local time, the same as your system clock, not UTC.
+                        A transform works only on a copy of up to 100,000 characters; a
+                        longer copy is offered only the generators, which ignore it. A
+                        date-time with no time zone is read as local time, the same as
+                        your system clock, not UTC.
                     </p>
                 </section>
 
@@ -1053,8 +1059,9 @@
                     <p class="kicker">06</p>
                     <h2 id="keyboard-title">Keyboard &amp; mouse</h2>
                     <p>
-                        Super+Shift+V opens the popup from anywhere, unless the screen
-                        is locked.
+                        Super+Shift+V opens the popup over any application window. It
+                        does nothing in the Activities overview or while the screen is
+                        locked.
                     </p>
                     <table class="table">
                         <thead>
@@ -1163,8 +1170,9 @@
                     <h2 id="architecture-title">Architecture</h2>
                     <p>
                         Every decision — what to record, what a transform does, what a
-                        shortcut may take — lives in a module that imports nothing else
-                        in the project, so the suite can test it whole on plain Node.
+                        shortcut may take — lives in a module that imports no GNOME API,
+                        only other modules like it, so the suite can test it whole on
+                        plain Node.
                     </p>
                     <table class="table">
                         <thead>
@@ -1181,8 +1189,8 @@
                                 </td>
                                 <td data-label="Job" class="muted">
                                     History: add/dedupe, size and image-budget caps,
-                                    pin/unpin, <code>expire(now)</code>,
-                                    <code>nextExpiry()</code>, clear, change callbacks
+                                    <code>expire()</code>, <code>nextExpiry()</code>,
+                                    clear, change callbacks
                                 </td>
                                 <td data-label="Deps">none (pure)</td>
                             </tr>
@@ -1195,7 +1203,7 @@
                                     <code>{id, label, applies(text), run(text)}</code>
                                     list; uuid and clock injected
                                 </td>
-                                <td data-label="Deps">none (pure)</td>
+                                <td data-label="Deps">model.js (pure)</td>
                             </tr>
                             <tr>
                                 <td data-label="Module">
@@ -1204,11 +1212,56 @@
                                 <td data-label="Job" class="muted">
                                     <code
                                         >shouldRecord({mimetypes, appId, paused,
-                                        ignored})</code
+                                        ignoredApps, imagesAllowed})</code
                                     >
-                                    → <code>{record, reason}</code>
+                                    → <code>{record, kind}</code> or
+                                    <code>{record, reason}</code>
+                                </td>
+                                <td data-label="Deps">model.js (pure)</td>
+                            </tr>
+                            <tr>
+                                <td data-label="Module">
+                                    <code>modules/listing.js</code>
+                                </td>
+                                <td data-label="Job" class="muted">
+                                    Row text and previews, the popup filter, which text
+                                    can be pinned
+                                </td>
+                                <td data-label="Deps">
+                                    model.js, privacy.js, transforms.js (pure)
+                                </td>
+                            </tr>
+                            <tr>
+                                <td data-label="Module">
+                                    <code>modules/accel.js</code>
+                                </td>
+                                <td data-label="Job" class="muted">
+                                    Accelerators compared as GNOME matches them;
+                                    conflicts; Shift-only refusal
                                 </td>
                                 <td data-label="Deps">none (pure)</td>
+                            </tr>
+                            <tr>
+                                <td data-label="Module">
+                                    <code>modules/settings.js</code>
+                                </td>
+                                <td data-label="Job" class="muted">
+                                    The key list and its wording; a watcher that
+                                    releases what it connects
+                                </td>
+                                <td data-label="Deps">none (pure)</td>
+                            </tr>
+                            <tr>
+                                <td data-label="Module">
+                                    <code>modules/recorder.js</code>
+                                </td>
+                                <td data-label="Job" class="muted">
+                                    Clipboard change → privacy check → read → History;
+                                    drops superseded reads; the one expiry timer
+                                </td>
+                                <td data-label="Deps">
+                                    model.js, privacy.js, settings.js (no GNOME API)
+                                </td>
                             </tr>
                             <tr>
                                 <td data-label="Module">
@@ -1219,7 +1272,7 @@
                                     <code>owner-changed</code> (CLIPBOARD) → read via
                                     <code>St.Clipboard</code>; write text/image
                                 </td>
-                                <td data-label="Deps">Meta, St</td>
+                                <td data-label="Deps">GLib, Meta, Shell, St</td>
                             </tr>
                             <tr>
                                 <td data-label="Module">
@@ -1229,7 +1282,17 @@
                                     Virtual keyboard device; Ctrl+V / Ctrl+Shift+V by
                                     focused app id
                                 </td>
-                                <td data-label="Deps">Clutter, Shell</td>
+                                <td data-label="Deps">Clutter, GLib</td>
+                            </tr>
+                            <tr>
+                                <td data-label="Module">
+                                    <code>modules/controller.js</code>
+                                </td>
+                                <td data-label="Job" class="muted">
+                                    Builds the pieces; lock handling, keybindings and
+                                    every action a click or key asks for
+                                </td>
+                                <td data-label="Deps">Meta, Shell, Shell UI</td>
                             </tr>
                             <tr>
                                 <td data-label="Module">
@@ -1254,13 +1317,12 @@
                             </tr>
                             <tr>
                                 <td data-label="Module">
-                                    <code>modules/settings.js</code>,
                                     <code>prefs.js</code>
                                 </td>
                                 <td data-label="Job" class="muted">
-                                    GSettings wrapper; Adw preferences window
+                                    Adw preferences window, in its own process
                                 </td>
-                                <td data-label="Deps">Gio, Adw</td>
+                                <td data-label="Deps">Adw, Gtk, Gdk, Gio</td>
                             </tr>
                         </tbody>
                     </table>
@@ -1459,9 +1521,11 @@
                         </li>
                         <li>
                             <span
-                                >A failing transform (forcing URL decode on
-                                <code>%E0%A4%A</code>, say) is not offered; no
-                                notification ever quotes clipboard text.</span
+                                >Copy <code>%E0%A4%A</code> and choose URL decode → a
+                                notification reads “URL decode did not apply — Not valid
+                                URL encoding”, quoting nothing from the clipboard, and
+                                the clipboard is unchanged. No notification ever quotes
+                                clipboard text.</span
                             >
                         </li>
                         <li>
@@ -1495,9 +1559,11 @@
                         </li>
                         <li>
                             <span
-                                >In Preferences, setting the popup shortcut to Super+V
-                                is refused with a toast naming
-                                <code>toggle-message-tray</code>.</span
+                                >In Preferences, choose Set… for the popup shortcut: the
+                                Shell asks whether to allow the app to inhibit
+                                shortcuts. Allow it, then press Super+V → the message
+                                tray stays shut and the shortcut is refused with a toast
+                                naming <code>toggle-message-tray</code>.</span
                             >
                         </li>
                         <li>

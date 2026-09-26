@@ -456,5 +456,10 @@ describe('QuickClip', () => {
         expect(liveTile()).toHaveLength(0);
         expect(settings.connected.size).toBe(0);
         expect(liveHandlers.size).toBe(before);
+        // Everything enable() built is let go, so a disabled extension holds
+        // nothing it made.
+        expect(app._history).toBeNull();
+        expect(app._recorder).toBeNull();
+        expect(app._transforms).toBeNull();
     });
 });

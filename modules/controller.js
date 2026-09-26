@@ -96,6 +96,7 @@ export class QuickClip {
         this._recorder = null;
         this._history?.clear();
         this._history = null;
+        this._transforms = null;
         this._locked = null;
     }
 

@@ -240,10 +240,10 @@ export class QuickClip {
             // reword around the two %s but not swap which value lands in
             // which one. The label and the reason are marked with N_ in
             // transforms.js, which is how xgettext finds them.
-            // Translators: %s %s — the transform's label, then why it failed.
             Main.notify(
                 'QuickClip',
                 fill(
+                    // Translators: %s %s — the transform's label, then why it failed.
                     fill(_('%s did not apply — %s'), _(transform.label)),
                     _(error.message),
                 ),

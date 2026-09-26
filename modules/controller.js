@@ -65,7 +65,7 @@ export class QuickClip {
         this._popup = null;
         this._pasteTimer = null;
         this._pasteWarned = false;
-        this._keybound = false;
+        this._bindings = [];
         this._locked = null;
         this._actions = this._createActions();
     }
@@ -96,6 +96,7 @@ export class QuickClip {
         this._recorder = null;
         this._history?.clear();
         this._history = null;
+        this._transforms = null;
         this._locked = null;
     }
 
@@ -149,19 +150,26 @@ export class QuickClip {
         });
         this._panel.enable();
 
-        const bind = (key, handler) =>
-            Main.wm.addKeybinding(
+        // Mutter answers NONE, never an exception, when it refuses a name
+        // something else in the Shell already registered. Only an accepted
+        // name is recorded: removing one that was never added makes the Shell
+        // warn.
+        const bind = (key, handler) => {
+            const action = Main.wm.addKeybinding(
                 key,
                 this._settings,
-                Meta.KeyBindingFlags.NONE,
+                Meta.KeyBindingFlags.IGNORE_AUTOREPEAT,
                 Shell.ActionMode.NORMAL,
                 handler,
             );
+            if (action === Meta.KeyBindingAction.NONE)
+                console.warn(`[quickclip] could not bind ${key}`);
+            else this._bindings.push(key);
+        };
         bind(KEYS.POPUP_SHORTCUT, () => this.openPopup());
         bind(KEYS.PAUSE_SHORTCUT, () =>
             this._actions.setPaused(!this._settings.get_boolean(KEYS.PAUSED)),
         );
-        this._keybound = true;
     }
 
     _hideUi() {
@@ -173,11 +181,8 @@ export class QuickClip {
         this._popup?.destroy();
         this._popup = null;
 
-        if (this._keybound) {
-            Main.wm.removeKeybinding(KEYS.POPUP_SHORTCUT);
-            Main.wm.removeKeybinding(KEYS.PAUSE_SHORTCUT);
-            this._keybound = false;
-        }
+        for (const key of this._bindings) Main.wm.removeKeybinding(key);
+        this._bindings = [];
 
         this._panel?.disable();
         this._panel = null;
@@ -228,11 +233,20 @@ export class QuickClip {
         } catch (error) {
             if (!(error instanceof TransformError)) throw error;
             // Fixed wording only: a notification can outlive the copy and show
-            // on the lock screen.
+            // on the lock screen. One msgid holds the whole sentence; fill()
+            // replaces each %s in call order, not by its position in a
+            // translation, so the first fill() below always becomes the label
+            // and the second always becomes the reason — a translator can
+            // reword around the two %s but not swap which value lands in
+            // which one. The label and the reason are marked with N_ in
+            // transforms.js, which is how xgettext finds them.
             Main.notify(
                 'QuickClip',
-                fill(_('%s did not apply'), _(transform.label)) +
-                    ` — ${_(error.message)}`,
+                fill(
+                    // Translators: %s %s — the transform's label, then why it failed.
+                    fill(_('%s did not apply — %s'), _(transform.label)),
+                    _(error.message),
+                ),
             );
             return false;
         }

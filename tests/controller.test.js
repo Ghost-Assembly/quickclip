@@ -1,13 +1,17 @@
+import { readdirSync, readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import Clutter, { virtualSeat } from './stubs/gi-clutter.js';
+import Meta from './stubs/gi-meta.js';
 import Shell from './stubs/gi-shell.js';
 import * as Main from './stubs/shell-main.js';
 import { descendants, liveHandlers, resetActors } from './support/actors.js';
 import { PASTE_DELAY_MS, QuickClip } from '../modules/controller.js';
 import { Paster } from '../modules/paste.js';
 import { KEYS } from '../modules/settings.js';
-import { MAX_TRANSFORM_CHARS } from '../modules/transforms.js';
+import { MAX_TRANSFORM_CHARS, createTransforms } from '../modules/transforms.js';
 import {
     createClipboard,
     createSettings,
@@ -15,7 +19,27 @@ import {
     flush,
 } from './support/world.js';
 
-function build(values = {}) {
+/**
+ * Every msgid xgettext can pull out of modules/: a single string literal as the
+ * whole first argument of _() or N_() (xgettext -k_ -kN_). A variable, a
+ * template or a concatenation there is invisible to it.
+ */
+function extractableMsgids() {
+    const dir = fileURLToPath(new URL('../modules/', import.meta.url));
+    const call = /(?<![\w.$])N?_\(\s*'((?:[^'\\]|\\.)*)'\s*[,)]/g;
+    const ids = new Set();
+    // A module-relative constant directory and the files in it, not input.
+    // eslint-disable-next-line security/detect-non-literal-fs-filename
+    const files = readdirSync(dir).filter(name => name.endsWith('.js'));
+    for (const file of files) {
+        // eslint-disable-next-line security/detect-non-literal-fs-filename
+        const source = readFileSync(dir + file, 'utf8');
+        for (const match of source.matchAll(call)) ids.add(match[1]);
+    }
+    return ids;
+}
+
+function build(values = {}, { gettext = message => message } = {}) {
     const timers = createTimers();
     const settings = createSettings(values);
     const clip = createClipboard();
@@ -29,7 +53,7 @@ function build(values = {}) {
         source: clip,
         paster,
         iconPath: '/icon.svg',
-        gettext: message => message,
+        gettext,
         ngettext: (one, many, count) => (count === 1 ? one : many),
         openPrefs: () => (prefs += 1),
         uuid: () => 'uuid-1',
@@ -68,12 +92,52 @@ describe('QuickClip', () => {
         const { clip } = build();
         expect(liveTile()).toHaveLength(1);
         expect(clip.listening).toBe(true);
-        expect([...Main.wm.bindings.keys()].sort()).toEqual([
-            KEYS.PAUSE_SHORTCUT,
-            KEYS.POPUP_SHORTCUT,
-        ]);
+        expect([...Main.wm.bindings.keys()].sort()).toEqual(
+            [KEYS.PAUSE_SHORTCUT, KEYS.POPUP_SHORTCUT].sort(),
+        );
         for (const binding of Main.wm.bindings.values())
             expect(binding.mode).toBe(Shell.ActionMode.NORMAL);
+    });
+
+    // Mutter keybinding names share one namespace across the whole Shell, and
+    // a name another extension already holds is refused.
+    it('binds its shortcuts under names only QuickClip would use', () => {
+        build();
+        expect(Main.addCalls.length).toBeGreaterThan(0);
+        for (const name of Main.addCalls) expect(name).toMatch(/^quickclip-/);
+    });
+
+    // A held pause shortcut would otherwise flip recording at the keyboard's
+    // repeat rate.
+    it('ignores key repeat on its shortcuts', () => {
+        build();
+        for (const binding of Main.wm.bindings.values())
+            expect(binding.flags).toBe(Meta.KeyBindingFlags.IGNORE_AUTOREPEAT);
+    });
+
+    it('removes only the shortcuts Mutter accepted, and binds them again on unlock', () => {
+        const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+        Main.refuse.add(KEYS.POPUP_SHORTCUT);
+        const { app } = build();
+        expect([...Main.wm.bindings.keys()]).toEqual([KEYS.PAUSE_SHORTCUT]);
+        expect(warn).toHaveBeenCalledWith(
+            `[quickclip] could not bind ${KEYS.POPUP_SHORTCUT}`,
+        );
+
+        Main.lock(true);
+        expect(Main.removeCalls).toEqual([KEYS.PAUSE_SHORTCUT]);
+
+        Main.refuse.clear();
+        Main.lock(false);
+        expect([...Main.wm.bindings.keys()].sort()).toEqual(
+            [KEYS.PAUSE_SHORTCUT, KEYS.POPUP_SHORTCUT].sort(),
+        );
+
+        app.disable();
+        expect([...Main.removeCalls].sort()).toEqual(
+            [KEYS.PAUSE_SHORTCUT, KEYS.PAUSE_SHORTCUT, KEYS.POPUP_SHORTCUT].sort(),
+        );
+        expect(Main.wm.bindings.size).toBe(0);
     });
 
     it('hides everything while locked, and clears by default', async () => {
@@ -277,7 +341,7 @@ describe('QuickClip', () => {
             timers.advance(PASTE_DELAY_MS);
         }
         expect(Main.notifications).toHaveLength(1);
-        expect(Main.notifications[0].body).toBe(
+        expect(Main.notifications[0].details).toBe(
             'Auto-paste is unavailable. The item was copied; paste it yourself.',
         );
     });
@@ -315,8 +379,32 @@ describe('QuickClip', () => {
 
         expect(clip.writes).toEqual([]);
         expect(Main.notifications).toHaveLength(1);
-        expect(Main.notifications[0].title).toBe('QuickClip');
-        expect(Main.notifications[0].body).not.toContain('hunter2');
+        expect(Main.notifications[0].message).toBe('QuickClip');
+        expect(Main.notifications[0].details).not.toContain('hunter2');
+    });
+
+    it('words a failed transform only in strings a translator is given', async () => {
+        const asked = [];
+        const gettext = message => (asked.push(message), message);
+        const { app, clip } = build({}, { gettext });
+        clip.copyText('not json');
+        await flush();
+        const pretty = app._transforms.find(({ id }) => id === 'json-pretty');
+
+        asked.length = 0;
+        app._actions.transform(pretty);
+
+        expect(Main.notifications).toHaveLength(1);
+        expect(asked.length).toBeGreaterThan(0);
+        const known = extractableMsgids();
+        for (const message of asked) expect(known, message).toContain(message);
+    });
+
+    it('gives every transform label to xgettext', () => {
+        const known = extractableMsgids();
+        const transforms = createTransforms({ uuid: () => 'uuid-1', now: () => 1 });
+        expect(transforms.length).toBeGreaterThan(0);
+        for (const { label } of transforms) expect(known, label).toContain(label);
     });
 
     it('pins without duplicates, unpins by position, pauses and opens prefs', () => {
@@ -375,5 +463,10 @@ describe('QuickClip', () => {
         expect(liveTile()).toHaveLength(0);
         expect(settings.connected.size).toBe(0);
         expect(liveHandlers.size).toBe(before);
+        // Everything enable() built is let go, so a disabled extension holds
+        // nothing it made.
+        expect(app._history).toBeNull();
+        expect(app._recorder).toBeNull();
+        expect(app._transforms).toBeNull();
     });
 });

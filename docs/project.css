@@ -1,0 +1,29 @@
+/*
+ * QuickClip's additions to the shared Ghost Assembly docs template.
+ *
+ * style.css is the template and is kept byte-identical across the quick*
+ * sites; what only this site needs lives here, loaded after it. The product
+ * drawing takes GNOME's own colors, as the template's drawing does.
+ */
+
+/* ---- The product drawing: QuickClip's tile and menu ---------------------- */
+
+/* A single tile in the row, rather than the two-column grid other projects'
+ * mocks use: QuickClip adds only one tile to Quick Settings. */
+.qs-row.single {
+    grid-template-columns: minmax(0, 1fr);
+}
+
+.qc-pinned {
+    gap: 8px;
+    color: #d0d0d4;
+}
+
+.qc-pinned svg {
+    color: #dcdcdf;
+}
+
+.qc-blocked {
+    color: #c8c8cc;
+    font-style: italic;
+}

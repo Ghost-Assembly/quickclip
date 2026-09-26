@@ -72,6 +72,12 @@ export default [
             sourceType: 'module',
             globals: globals.node,
         },
+        rules: {
+            // The stubs mirror real GObject signatures, so they carry
+            // parameters they have no use for. Same convention as the
+            // extension code above.
+            'no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+        },
     },
     {
         // The docs site's browser suite: Node, plus the callbacks it hands to

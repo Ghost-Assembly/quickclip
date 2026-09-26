@@ -1,19 +1,25 @@
 #!/usr/bin/env bash
-# Boot a throwaway headless gnome-shell with QuickClip installed and assert
-# that it enables cleanly, starts listening, records a copy, skips a
-# password-manager copy, disables cleanly, and can be enabled again without
+# Boot a throwaway headless gnome-shell with the extension installed and assert
+# that it enables cleanly, disables cleanly, and can be enabled again without
 # leaking.
 #
-# The extension logs "[quickclip] enabled (v...)" on enable and
+# The enable/disable/enable cycle is the point: a signal connected at enable
+# and never disconnected makes the second enable stack a second handler, and
+# the Shell warns.
+#
+# QuickClip's own assertions (the per-repo block below): the extension logs
 # "[quickclip] listening" once Main.sessionMode reports the session is
-# unlocked, which is how this script sees the controller reach a working
-# state without a real user ever logging in. A copy made with wl-copy from
-# outside the Shell should then show up as "[quickclip] recorded text" or, for
-# a copy that carries a password-manager MIME hint, "[quickclip] skipped
-# sensitive".
+# unlocked, which is how this script sees the controller reach a working state
+# without a real user ever logging in. A copy made with wl-copy from outside
+# the Shell should then show up as "[quickclip] recorded text" or, for a copy
+# that carries a password-manager MIME hint, "[quickclip] skipped sensitive".
 #
 # This needs a real gnome-shell and so runs locally only; GitHub's runners have
 # no GNOME 50.
+#
+# Recommended frame, NOT in template.list: everything outside the marked
+# per-repo block is the same in every extension; the block holds what only
+# this one checks. Keep the frame in step by hand.
 
 set -euo pipefail
 
@@ -26,8 +32,14 @@ set -euo pipefail
 # against.
 export PATH="/usr/bin:$PATH"
 
-UUID="quickclip@napalm255.github.io"
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+
+# Derived, so metadata.json is the only place the uuid is written down. It was
+# spelled out here once, and a rename then left this script installing under one
+# uuid and enabling another — which fails as "extension not found", nowhere near
+# the line that is actually wrong.
+UUID="$(jq -r .uuid "$REPO_ROOT/metadata.json")"
+NAME="${UUID%%@*}"
 TIMEOUT="${TIMEOUT:-60}"
 
 # The private XDG directories must be exported BEFORE dbus-run-session starts,
@@ -35,28 +47,105 @@ TIMEOUT="${TIMEOUT:-60}"
 # by a bus that inherited the real XDG_CONFIG_HOME will read and write the
 # developer's own dconf database — `gsettings set` then silently affects the
 # real session and the shell under test loads the real extension list.
-if [[ -z "${QUICKCLIP_HEADLESS:-}" ]]; then
-    QUICKCLIP_WORK="$(mktemp -d)"
-    export QUICKCLIP_HEADLESS=1
-    export QUICKCLIP_WORK
-    export XDG_CONFIG_HOME="$QUICKCLIP_WORK/config"
-    export XDG_DATA_HOME="$QUICKCLIP_WORK/data"
-    export XDG_CACHE_HOME="$QUICKCLIP_WORK/cache"
-    export XDG_RUNTIME_DIR="$QUICKCLIP_WORK/run"
+if [[ -z "${HEADLESS_CHECK_WORK:-}" ]]; then
+    HEADLESS_CHECK_WORK="$(mktemp -d)"
+    export HEADLESS_CHECK_WORK
+    export XDG_CONFIG_HOME="$HEADLESS_CHECK_WORK/config"
+    export XDG_DATA_HOME="$HEADLESS_CHECK_WORK/data"
+    export XDG_CACHE_HOME="$HEADLESS_CHECK_WORK/cache"
+    export XDG_RUNTIME_DIR="$HEADLESS_CHECK_WORK/run"
     mkdir -p "$XDG_CONFIG_HOME" "$XDG_DATA_HOME" "$XDG_CACHE_HOME" "$XDG_RUNTIME_DIR"
     chmod 700 "$XDG_RUNTIME_DIR"
 
     exec dbus-run-session -- "${BASH_SOURCE[0]}" "$@"
 fi
 
-WORK="$QUICKCLIP_WORK"
+WORK="$HEADLESS_CHECK_WORK"
 LOG="$WORK/shell.log"
+
+# Background helpers the per-repo block starts (a fake player, a wl-copy);
+# cleanup stops every one.
+HELPER_PIDS=()
+
+# ==== BEGIN per-repo assertions =============================================
+# Everything particular to this extension. The frame calls these four hooks at
+# fixed points; leave a hook as `:` when there is nothing to do there.
+#
+# before_shell  — after the extension is installed, before gnome-shell starts:
+#                 fixtures, settings (`gsettings --schemadir "$EXT_DIR/schemas"`).
+# after_enable  — once the first "[$NAME] enabled" is logged.
+# after_reenable — once the second "[$NAME] enabled" is logged.
+# final_checks  — after the shared error and warning greps.
+#
+# Helpers available: wait_for PATTERN [COUNT], fail MESSAGE, and HELPER_PIDS
+# for anything started in the background.
+
+# Warnings this extension may legitimately log in a headless Shell, as one
+# extended regex matched against the warning's text; empty allows none.
+ALLOWED_WARNINGS=''
+
+before_shell() {
+    :
+}
+
+# Put something on the clipboard from outside the Shell. wl-copy must own the
+# selection on the headless compositor, which needs keyboard focus it may not
+# get without a real seat; if it cannot, this phase is left to the manual
+# checklist in the docs rather than failing the whole check.
+copy() {
+    local type="$1" text="$2"
+    WAYLAND_DISPLAY=wayland-0 timeout 5 wl-copy --foreground --type "$type" "$text" \
+        >>"$WORK/copy.log" 2>&1 &
+    HELPER_PIDS+=("$!")
+}
+
+after_enable() {
+    wait_for '\[quickclip\] listening' || fail "extension never started listening"
+    echo "ok: listening"
+
+    if ! command -v wl-copy >/dev/null; then
+        echo "skip: wl-copy not installed"
+        return
+    fi
+
+    copy text/plain "headless check"
+    # A short wait: if wl-copy works at all it works within seconds.
+    if TIMEOUT=10 wait_for '\[quickclip\] recorded text'; then
+        echo "ok: recorded a copy"
+        kill "${HELPER_PIDS[-1]}" 2>/dev/null || true
+        copy x-kde-passwordManagerHint "secret"
+        wait_for '\[quickclip\] skipped sensitive' \
+            || fail "a password-manager copy was not skipped"
+        echo "ok: skipped a sensitive copy"
+    else
+        echo "skip: wl-copy could not own the selection in a headless shell (see copy.log)"
+    fi
+}
+
+after_reenable() {
+    wait_for '\[quickclip\] listening' 2 || fail "extension did not listen again after re-enable"
+    echo "ok: listening again after re-enable"
+}
+
+# Logged at debug level, so the shared warning check does not see it, but it
+# means paste cannot work at all.
+final_checks() {
+    if grep -qaE '\[quickclip\] no virtual keyboard: ' "$LOG"; then
+        fail "no virtual keyboard for paste"
+    fi
+}
+# ==== END per-repo assertions ===============================================
 
 EXT_DIR="$XDG_DATA_HOME/gnome-shell/extensions/$UUID"
 mkdir -p "$EXT_DIR"
+# icons/ included: without it Gio.icon_new_for_string points at a path that does
+# not exist, the tile draws no icon, and nothing is logged to say so.
 cp -r "$REPO_ROOT"/metadata.json "$REPO_ROOT"/extension.js "$REPO_ROOT"/prefs.js \
-      "$REPO_ROOT"/stylesheet.css "$REPO_ROOT"/modules "$REPO_ROOT"/schemas \
-      "$REPO_ROOT"/icons "$EXT_DIR/"
+    "$REPO_ROOT"/modules "$REPO_ROOT"/schemas "$REPO_ROOT"/icons "$EXT_DIR/"
+# The same condition `just build` ships it on.
+if [[ -f "$REPO_ROOT/stylesheet.css" ]]; then
+    cp "$REPO_ROOT/stylesheet.css" "$EXT_DIR/"
+fi
 glib-compile-schemas "$EXT_DIR/schemas"
 
 gsettings set org.gnome.shell disable-user-extensions false
@@ -80,6 +169,8 @@ if [[ "$(dconf read /org/gnome/shell/enabled-extensions)" != "['$UUID']" ]]; the
     exit 1
 fi
 
+before_shell
+
 # The enable marker is logged at debug level, which GLib drops unless asked
 # for. Without this the shell starts perfectly and the check still fails.
 export G_MESSAGES_DEBUG=all
@@ -92,12 +183,12 @@ cleanup() {
     # script's exit status, which is how a run that printed PASS still exited 1.
     local status=$?
 
-    # || true: by the time cleanup runs, COPY_PID usually names a wl-copy that
-    # already exited on its own (its own `timeout 5`, or a successful copy),
-    # so `kill` on an already-reaped PID fails; under `set -e` that failure is
-    # the last command in this `&&` list, which would abort the trap itself
-    # and turn a run that printed PASS into a process that exits 1.
-    [[ -n "${COPY_PID:-}" ]] && { kill "$COPY_PID" 2>/dev/null || true; }
+    # A helper has often exited on its own by now, so kill may fail; under
+    # `set -e` that would abort the trap and turn a PASS into exit 1.
+    local pid
+    for pid in "${HELPER_PIDS[@]}"; do
+        kill "$pid" 2>/dev/null || true
+    done
     kill "$SHELL_PID" 2>/dev/null || true
     wait "$SHELL_PID" 2>/dev/null || true
 
@@ -112,8 +203,8 @@ trap cleanup EXIT
 
 fail() {
     echo "FAIL: $1" >&2
-    echo "---- shell log (quickclip and errors only) ----" >&2
-    grep -aiE 'quickclip|JS ERROR|Extension' "$LOG" >&2 || echo "(nothing matched)" >&2
+    echo "---- shell log ($NAME and errors only) ----" >&2
+    grep -aiE "$NAME|JS ERROR|Extension" "$LOG" >&2 || echo "(nothing matched)" >&2
     exit 1
 }
 
@@ -127,51 +218,24 @@ wait_for() {
         (($(grep -ac "$pattern" "$LOG") >= wanted)) && return 0
         kill -0 "$SHELL_PID" 2>/dev/null || fail "gnome-shell exited early"
         sleep 1
-        ((waited++))
+        # Not ((waited++)): that evaluates to 0 on the first pass, which is a
+        # failing status, and set -e would end the script there.
+        waited=$((waited + 1))
     done
     return 1
 }
 
-wait_for '\[quickclip\] enabled' || fail "extension never reported enabled within ${TIMEOUT}s"
-wait_for '\[quickclip\] listening' || fail "extension never started listening"
-echo "ok: enabled and listening"
+wait_for "\\[$NAME\\] enabled" || fail "extension never reported enabled within ${TIMEOUT}s"
+echo "ok: enabled"
+after_enable
 
-# Put something on the clipboard from outside the Shell. wl-copy must own the
-# selection on the headless compositor, which needs keyboard focus it may not
-# get without a real seat; if it cannot, this phase is left to the manual
-# checklist in the docs rather than failing the whole check.
-COPY_PID=""
-copy() {
-    local type="$1" text="$2"
-    WAYLAND_DISPLAY=wayland-0 timeout 5 wl-copy --foreground --type "$type" "$text" \
-        >>"$WORK/copy.log" 2>&1 &
-    COPY_PID=$!
-}
-
-if command -v wl-copy >/dev/null; then
-    copy text/plain "headless check"
-    # A short wait: if wl-copy works at all it works within seconds.
-    if TIMEOUT=10 wait_for '\[quickclip\] recorded text'; then
-        echo "ok: recorded a copy"
-        kill "$COPY_PID" 2>/dev/null || true
-        copy x-kde-passwordManagerHint "secret"
-        wait_for '\[quickclip\] skipped sensitive' \
-            || fail "a password-manager copy was not skipped"
-        echo "ok: skipped a sensitive copy"
-        kill "$COPY_PID" 2>/dev/null || true
-    else
-        echo "skip: wl-copy could not own the selection in a headless shell (see copy.log)"
-    fi
-else
-    echo "skip: wl-copy not installed"
-fi
-
+# A second enable must be as clean as the first.
 gnome-extensions disable "$UUID"
 sleep 3
 gnome-extensions enable "$UUID"
-wait_for '\[quickclip\] enabled' 2 || fail "extension did not re-enable after disable"
-wait_for '\[quickclip\] listening' 2 || fail "extension did not listen again after re-enable"
+wait_for "\\[$NAME\\] enabled" 2 || fail "extension did not re-enable after disable"
 echo "ok: re-enabled after disable"
+after_reenable
 
 if grep -qaE 'JS ERROR|Extension .* had error' "$LOG"; then
     fail "javascript errors in the shell log"
@@ -185,9 +249,18 @@ if grep -qaiE 'Source ID .* was not found|GSource .* still active' "$LOG"; then
     fail "a GLib source outlived its disable"
 fi
 
-if grep -qaE '\[quickclip\] .*: ' "$LOG"; then
+# Anything the extension logged through console.warn or console.error. GJS
+# prints those as "Gjs-Console-WARNING **: <time>: <text>" (CRITICAL for
+# error), while console.debug and console.log never carry that level.
+warnings="$(grep -aE "Gjs-Console-(WARNING|CRITICAL) \\*\\*: [0-9:.]+: \\[$NAME\\]" "$LOG" || true)"
+if [[ -n "$ALLOWED_WARNINGS" ]]; then
+    warnings="$(grep -vE "$ALLOWED_WARNINGS" <<<"$warnings" || true)"
+fi
+if [[ -n "$warnings" ]]; then
+    echo "$warnings" >&2
     fail "the extension logged a warning"
 fi
 
 echo "ok: no errors or lifetime warnings"
+final_checks
 echo "PASS"

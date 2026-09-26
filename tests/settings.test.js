@@ -62,6 +62,15 @@ describe('the settings list and the gschema', () => {
     });
 });
 
+describe('shortcut keys', () => {
+    // The gschema key is also the Mutter keybinding name, which is global to
+    // the Shell; the prefix keeps it from colliding with another extension's.
+    it('carry the extension prefix', () => {
+        expect(KEYS.POPUP_SHORTCUT).toBe('quickclip-open-popup');
+        expect(KEYS.PAUSE_SHORTCUT).toBe('quickclip-toggle-pause');
+    });
+});
+
 describe('defaults', () => {
     it('never takes over GNOME’s Super+V', () => {
         expect(defaultOf(KEYS.POPUP_SHORTCUT)).toContain("'<Super><Shift>v'");

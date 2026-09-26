@@ -1,6 +1,19 @@
-// St, as far as the views use it.
+// St, as far as the extension uses it.
 
 import { FakeActor } from '../support/actors.js';
+
+/** What was put on the clipboard, by clipboard type. */
+export const clipboard = { CLIPBOARD: null, PRIMARY: null };
+
+/** The scale factor the theme context reports. A test may change it. */
+export const themeContext = { scale_factor: 1 };
+
+/** Reset between tests. */
+export function resetSt() {
+    clipboard.CLIPBOARD = null;
+    clipboard.PRIMARY = null;
+    themeContext.scale_factor = 1;
+}
 
 class Widget extends FakeActor {}
 class BoxLayout extends Widget {}
@@ -65,6 +78,23 @@ export default {
     Entry,
     ScrollView,
 
+    ClipboardType: { CLIPBOARD: 'CLIPBOARD', PRIMARY: 'PRIMARY' },
+
+    Clipboard: {
+        get_default: () => ({
+            set_text(type, text) {
+                clipboard[type === 'PRIMARY' ? 'PRIMARY' : 'CLIPBOARD'] = text;
+            },
+        }),
+    },
+
+    ThemeContext: {
+        get_for_stage: () => themeContext,
+    },
+
+    // St's own values: ALWAYS, AUTOMATIC, NEVER, EXTERNAL.
     PolicyType: { ALWAYS: 0, AUTOMATIC: 1, NEVER: 2, EXTERNAL: 3 },
+    DirectionType: { TAB_FORWARD: 0, TAB_BACKWARD: 1 },
+    Align: { START: 0, MIDDLE: 1, END: 2 },
     Side: { TOP: 0, RIGHT: 1, BOTTOM: 2, LEFT: 3 },
 };

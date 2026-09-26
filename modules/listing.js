@@ -16,6 +16,13 @@ export const PREVIEW_CHARS = 60;
 const SCAN_CHARS = PREVIEW_CHARS * 4;
 
 /**
+ * How far into a copy the filter looks. Lowercasing a hundred 1 MB copies on
+ * every keystroke would stall the Shell; what is typed to find a copy is
+ * nearly always near its start.
+ */
+export const MATCH_CHARS = 10_000;
+
+/**
  * Put a value into a translated "%s" template. A function replacer keeps a
  * "$&" in the value from being read as a replacement pattern.
  */
@@ -86,15 +93,17 @@ export function blockedText(reason, _) {
 }
 
 /**
- * Pinned snippets then history, filtered by a query. Images have no text to
- * match, so they are hidden while a query is typed.
+ * Pinned snippets then history, filtered by a query against the first
+ * MATCH_CHARS characters of each. Images have no text to match, so they are
+ * hidden while a query is typed.
  *
  * @param {{pinned: string[], items: object[], query?: string}} source What to list.
  * @returns {Array<{pinned: boolean, index?: number, item: object}>} Rows.
  */
 export function entries({ pinned, items, query = '' }) {
     const needle = query.trim().toLowerCase();
-    const match = text => !needle || text.toLowerCase().includes(needle);
+    const match = text =>
+        !needle || text.slice(0, MATCH_CHARS).toLowerCase().includes(needle);
 
     const rows = [];
     pinned.forEach((text, index) => {

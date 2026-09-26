@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import { KIND } from '../modules/model.js';
 import {
+    MATCH_CHARS,
     PREVIEW_CHARS,
     blockedText,
     entries,
@@ -92,6 +93,21 @@ describe('entries', () => {
     it('filters text case-insensitively and hides images while filtering', () => {
         const rows = entries({ pinned: ['Alphabet'], items, query: ' ALP ' });
         expect(rows.map(row => row.item.text)).toEqual(['Alphabet', 'alpha']);
+    });
+
+    it('matches only the head of a long copy, pinned or not', () => {
+        const pad = 'x'.repeat(MATCH_CHARS);
+        const rows = entries({
+            pinned: [`${pad}needle`, `needle${pad}`],
+            items: [text(`${pad}needle`), text(`needle${pad}`)],
+            query: 'needle',
+        });
+        expect(
+            rows.map(row => [row.pinned, row.item.text.startsWith('needle')]),
+        ).toEqual([
+            [true, true],
+            [false, true],
+        ]);
     });
 });
 

@@ -6,7 +6,7 @@
         <title>QuickClip · Ghost Assembly</title>
         <meta
             name="description"
-            content="A private clipboard history in GNOME quick settings, with developer transforms. Memory only; copies that KeePassXC and other password managers mark as secret are never recorded."
+            content="A private clipboard history in GNOME Quick Settings, with developer transforms. Memory only; copies that KeePassXC and other password managers mark as secret are never recorded."
         />
         <meta name="color-scheme" content="dark light" />
         <meta name="theme-color" content="#03030a" />
@@ -27,12 +27,12 @@
         <meta property="og:title" content="QuickClip" />
         <meta
             property="og:description"
-            content="A private clipboard history in GNOME quick settings, with developer transforms. Memory only; copies that KeePassXC and other password managers mark as secret are never recorded."
+            content="A private clipboard history in GNOME Quick Settings, with developer transforms. Memory only; copies that KeePassXC and other password managers mark as secret are never recorded."
         />
-        <meta property="og:url" content="https://ghost-assembly.github.io/quickclip/" />
+        <meta property="og:url" content="https://ghost-assembly.com/quickclip/" />
         <meta
             property="og:image"
-            content="https://ghost-assembly.github.io/quickclip/assets/og-image.png"
+            content="https://ghost-assembly.com/quickclip/assets/og-image.png"
         />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
@@ -91,7 +91,7 @@
                     <p class="eyebrow">GNOME Shell extension</p>
                     <h1 id="title">QuickClip</h1>
                     <p class="tagline">
-                        A private clipboard history in GNOME quick settings.
+                        A private clipboard history in GNOME Quick Settings.
                     </p>
                     <p class="lede">
                         Keeps your last copies — text and images — in memory only, skips
@@ -134,7 +134,7 @@
                 <figure
                     class="shot"
                     role="img"
-                    aria-label='QuickClip in GNOME: the quick settings tile reads “QuickClip, Recording” and its menu is open on the clipboard history — “Clipboard, 3 items” with Current showing {"id":42,"name":"ghost"} and a Transform row, a pinned ssh-ed25519 key, and Recent copies “kubectl get pods -A” and a URL, with a “Sensitive copy skipped” notice below them.'
+                    aria-label='QuickClip in GNOME: the Quick Settings tile reads “QuickClip, Recording” and its menu is open on the clipboard history — “Clipboard, 3 items” with Current showing {"id":42,"name":"ghost"} and a Transform row, a pinned ssh-ed25519 key, and Recent copies “kubectl get pods -A” and a URL, with a “Sensitive copy skipped” notice below them.'
                 >
                     <div class="gtop">
                         <span class="ws"><i></i><i></i><i></i></span>
@@ -298,7 +298,7 @@
                             </div>
                             <div class="qs-sep"></div>
                             <div class="qs-item">kubectl get pods -A</div>
-                            <div class="qs-item">https://ghost-assembly.github.io/</div>
+                            <div class="qs-item">https://ghost-assembly.com/</div>
                             <div class="qs-item qc-blocked">Sensitive copy skipped</div>
                         </div>
                     </div>
@@ -326,9 +326,7 @@
                         <a href="#preferences"><span class="n">05</span>Preferences</a>
                     </li>
                     <li>
-                        <a href="#keyboard"
-                            ><span class="n">06</span>Keyboard &amp; mouse</a
-                        >
+                        <a href="#keyboard"><span class="n">06</span>Keyboard</a>
                     </li>
                     <li>
                         <a href="#architecture"
@@ -336,10 +334,16 @@
                         >
                     </li>
                     <li>
-                        <a href="#development"><span class="n">08</span>Development</a>
+                        <a href="#testing"><span class="n">08</span>Testing</a>
                     </li>
                     <li>
-                        <a href="#releasing"><span class="n">09</span>Releasing</a>
+                        <a href="#packaging"><span class="n">09</span>Packaging</a>
+                    </li>
+                    <li>
+                        <a href="#releasing"><span class="n">10</span>Releasing</a>
+                    </li>
+                    <li>
+                        <a href="#development"><span class="n">11</span>Development</a>
                     </li>
                 </ol>
                 <ul class="toc-links">
@@ -386,7 +390,7 @@
                         >
                     </li>
                     <li>
-                        <a href="https://ghost-assembly.github.io/">
+                        <a href="https://ghost-assembly.com/">
                             <svg
                                 width="15"
                                 height="15"
@@ -446,9 +450,7 @@
                             >
                         </li>
                         <li>
-                            <a href="#keyboard"
-                                ><span class="n">06</span>Keyboard &amp; mouse</a
-                            >
+                            <a href="#keyboard"><span class="n">06</span>Keyboard</a>
                         </li>
                         <li>
                             <a href="#architecture"
@@ -456,12 +458,18 @@
                             >
                         </li>
                         <li>
-                            <a href="#development"
-                                ><span class="n">08</span>Development</a
-                            >
+                            <a href="#testing"><span class="n">08</span>Testing</a>
                         </li>
                         <li>
-                            <a href="#releasing"><span class="n">09</span>Releasing</a>
+                            <a href="#packaging"><span class="n">09</span>Packaging</a>
+                        </li>
+                        <li>
+                            <a href="#releasing"><span class="n">10</span>Releasing</a>
+                        </li>
+                        <li>
+                            <a href="#development"
+                                ><span class="n">11</span>Development</a
+                            >
                         </li>
                     </ol>
                 </details>
@@ -470,7 +478,7 @@
                     <p class="kicker">01</p>
                     <h2 id="overview-title">Overview</h2>
                     <p class="lead">
-                        QuickClip adds one tile to quick settings and one popup under
+                        QuickClip adds one tile to Quick Settings and one popup under
                         the keyboard. Both show the same history: your recent copies,
                         kept in the Shell's memory and never written to disk except for
                         snippets you explicitly pin.
@@ -1058,7 +1066,7 @@
 
                 <section class="section" id="keyboard" aria-labelledby="keyboard-title">
                     <p class="kicker">06</p>
-                    <h2 id="keyboard-title">Keyboard &amp; mouse</h2>
+                    <h2 id="keyboard-title">Keyboard</h2>
                     <p>
                         Super+Shift+V opens the popup over any application window. It
                         does nothing in the Activities overview or while the screen is
@@ -1153,7 +1161,7 @@
                             <path d="M12 3l8 3v6c0 4.5-3.4 8-8 9-4.6-1-8-4.5-8-9V6z" />
                         </svg>
                         <p>
-                            Clicking an item in the quick settings tile's menu copies it
+                            Clicking an item in the Quick Settings tile's menu copies it
                             to the clipboard but never pastes it — pasting only happens
                             from the keyboard popup, and only when
                             <em>Paste on select</em> is on. Super+V is untouched: it
@@ -1430,32 +1438,9 @@
                     </div>
                 </section>
 
-                <section
-                    class="section"
-                    id="development"
-                    aria-labelledby="development-title"
-                >
+                <section class="section" id="testing" aria-labelledby="testing-title">
                     <p class="kicker">08</p>
-                    <h2 id="development-title">Development</h2>
-                    <div class="code night">
-                        <header>
-                            <span>justfile</span
-                            ><span class="dots" aria-hidden="true"
-                                ><i></i><i></i><i></i
-                            ></span>
-                        </header>
-                        <pre
-                            tabindex="0"
-                        ><span class="k">just</span>              <span class="c"># list every recipe</span>
-<span class="k">just</span> test         <span class="c"># unit suite</span>
-<span class="k">just</span> test-docs    <span class="c"># this site, in Chromium and Firefox</span>
-<span class="k">just</span> lint         <span class="c"># eslint, prettier, gschema, shellcheck</span>
-<span class="k">just</span> ci           <span class="c"># what CI runs: lint, tests, test-docs, security, build</span>
-<span class="k">just</span> test-live    <span class="c"># headless gnome-shell smoke test, then the packed zip</span>
-<span class="k">just</span> coverage     <span class="c"># unit suite with a coverage report</span>
-<span class="k">just</span> docs         <span class="c"># serve this site on localhost:8000</span></pre>
-                    </div>
-                    <h3>Testing</h3>
+                    <h2 id="testing-title">Testing</h2>
                     <p>
                         The unit suite runs on Node with the Shell's modules replaced by
                         recording stubs. <code>just test-live</code> adds what CI cannot
@@ -1543,7 +1528,7 @@
                         </li>
                         <li>
                             <span
-                                >Lock the screen: the lock screen's quick settings has
+                                >Lock the screen: the lock screen's Quick Settings has
                                 no QuickClip tile; Super+Shift+V does nothing; unlock →
                                 history empty (Clear on lock on).</span
                             >
@@ -1579,10 +1564,36 @@
 
                 <section
                     class="section"
+                    id="packaging"
+                    aria-labelledby="packaging-title"
+                >
+                    <p class="kicker">09</p>
+                    <h2 id="packaging-title">Packaging</h2>
+                    <p>
+                        <code>just build</code> makes the zip with plain
+                        <code>zip</code>, because <code>gnome-extensions</code> ships
+                        inside the gnome-shell package and CI has no GNOME.
+                        <code>scripts/pack-check.sh</code> keeps the official tool as
+                        the authority, diffs the two listings and confirms every shipped
+                        icon decodes — an icon that fails to load is silent.
+                    </p>
+                    <p>
+                        The zip holds <code>metadata.json</code>,
+                        <code>extension.js</code>, <code>prefs.js</code>,
+                        <code>modules/</code>, <code>schemas/</code>,
+                        <code>icons/</code> and <code>stylesheet.css</code>, which
+                        styles the tile and menu beyond what the Shell already styles.
+                        The uuid is written down once, in <code>metadata.json</code>,
+                        and everything else reads it from there.
+                    </p>
+                </section>
+
+                <section
+                    class="section"
                     id="releasing"
                     aria-labelledby="releasing-title"
                 >
-                    <p class="kicker">09</p>
+                    <p class="kicker">10</p>
                     <h2 id="releasing-title">Releasing</h2>
                     <p>
                         Set the version in <code>metadata.json</code> and
@@ -1598,9 +1609,41 @@
                         </header>
                         <pre
                             tabindex="0"
-                        ><span class="p">$ </span><span class="k">git</span> tag v0.1.0
+                        ><span class="p">$ </span><span class="k">git</span> tag -a v0.1.0 -m 'release v0.1.0'
 <span class="p">$ </span><span class="k">git</span> push origin v0.1.0</pre>
                     </div>
+                </section>
+
+                <section
+                    class="section"
+                    id="development"
+                    aria-labelledby="development-title"
+                >
+                    <p class="kicker">11</p>
+                    <h2 id="development-title">Development</h2>
+                    <div class="code night">
+                        <header>
+                            <span>justfile</span
+                            ><span class="dots" aria-hidden="true"
+                                ><i></i><i></i><i></i
+                            ></span>
+                        </header>
+                        <pre
+                            tabindex="0"
+                        ><span class="k">just</span>              <span class="c"># list every recipe</span>
+<span class="k">just</span> test         <span class="c"># unit suite</span>
+<span class="k">just</span> test-docs    <span class="c"># this site, in Chromium and Firefox</span>
+<span class="k">just</span> lint         <span class="c"># eslint, prettier, gschema, shellcheck</span>
+<span class="k">just</span> ci           <span class="c"># what CI runs: lint, tests, test-docs, security, build</span>
+<span class="k">just</span> test-live    <span class="c"># headless gnome-shell smoke test, then the packed zip</span>
+<span class="k">just</span> coverage     <span class="c"># unit suite with a coverage report</span>
+<span class="k">just</span> docs         <span class="c"># serve this site on localhost:8000</span></pre>
+                    </div>
+                    <p>
+                        Every decision lives in a module that imports no GNOME API, so
+                        the unit suite tests it on plain Node; see
+                        <a href="#architecture">Architecture</a> above.
+                    </p>
                 </section>
             </main>
         </div>
@@ -1618,7 +1661,7 @@
             <nav aria-label="Footer">
                 <ul>
                     <li>
-                        <a href="https://ghost-assembly.github.io/">All projects</a>
+                        <a href="https://ghost-assembly.com/">All projects</a>
                     </li>
                     <li>
                         <a href="https://github.com/Ghost-Assembly/quickclip">Source</a>

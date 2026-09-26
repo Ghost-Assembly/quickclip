@@ -3,7 +3,7 @@
 
 export default {
     title: 'QuickClip',
-    site: 'https://ghost-assembly.github.io/quickclip/',
+    site: 'https://ghost-assembly.com/quickclip/',
     repo: 'https://github.com/Ghost-Assembly/quickclip',
 
     // [id, heading], in page order. The contents list must match.
@@ -13,9 +13,11 @@ export default {
         ['privacy', 'Privacy'],
         ['transforms', 'Transforms'],
         ['preferences', 'Preferences'],
-        ['keyboard', 'Keyboard & mouse'],
+        ['keyboard', 'Keyboard'],
         ['architecture', 'Architecture'],
-        ['development', 'Development'],
+        ['testing', 'Testing'],
+        ['packaging', 'Packaging'],
         ['releasing', 'Releasing'],
+        ['development', 'Development'],
     ],
 };

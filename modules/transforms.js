@@ -146,11 +146,11 @@ const toKebab = text =>
         .join('-');
 
 function caseApplies(convert) {
-    return text =>
-        !/[\r\n]/.test(text) &&
-        text.length <= MAX_CASE_CHARS &&
-        convert(text) !== '' &&
-        convert(text) !== text;
+    return text => {
+        if (/[\r\n]/.test(text) || text.length > MAX_CASE_CHARS) return false;
+        const converted = convert(text);
+        return converted !== '' && converted !== text;
+    };
 }
 
 const EPOCH = /^\s*(\d{10}|\d{13})\s*$/;

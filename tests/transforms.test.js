@@ -112,6 +112,11 @@ describe('cleanup and case', () => {
         expect(ids(text('foo_bar'))).not.toContain('snake');
         expect(ids(text('x'.repeat(201) + ' y'))).not.toContain('kebab');
     });
+
+    it('offers neither for text with no words in it', () => {
+        expect(ids(text('-- __ !!'))).not.toContain('snake');
+        expect(ids(text('-- __ !!'))).not.toContain('kebab');
+    });
 });
 
 describe('time', () => {

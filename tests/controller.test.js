@@ -84,12 +84,37 @@ describe('QuickClip', () => {
         for (const name of Main.addCalls) expect(name).toMatch(/^quickclip-/);
     });
 
-    // A held shortcut would otherwise open and close the popup, or flip pause,
-    // at the keyboard's repeat rate.
+    // A held pause shortcut would otherwise flip recording at the keyboard's
+    // repeat rate.
     it('ignores key repeat on its shortcuts', () => {
         build();
         for (const binding of Main.wm.bindings.values())
             expect(binding.flags).toBe(Meta.KeyBindingFlags.IGNORE_AUTOREPEAT);
+    });
+
+    it('removes only the shortcuts Mutter accepted, and binds them again on unlock', () => {
+        const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+        Main.refuse.add(KEYS.POPUP_SHORTCUT);
+        const { app } = build();
+        expect([...Main.wm.bindings.keys()]).toEqual([KEYS.PAUSE_SHORTCUT]);
+        expect(warn).toHaveBeenCalledWith(
+            `[quickclip] could not bind ${KEYS.POPUP_SHORTCUT}`,
+        );
+
+        Main.lock(true);
+        expect(Main.removeCalls).toEqual([KEYS.PAUSE_SHORTCUT]);
+
+        Main.refuse.clear();
+        Main.lock(false);
+        expect([...Main.wm.bindings.keys()].sort()).toEqual(
+            [KEYS.PAUSE_SHORTCUT, KEYS.POPUP_SHORTCUT].sort(),
+        );
+
+        app.disable();
+        expect([...Main.removeCalls].sort()).toEqual(
+            [KEYS.PAUSE_SHORTCUT, KEYS.PAUSE_SHORTCUT, KEYS.POPUP_SHORTCUT].sort(),
+        );
+        expect(Main.wm.bindings.size).toBe(0);
     });
 
     it('hides everything while locked, and clears by default', async () => {

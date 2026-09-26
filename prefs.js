@@ -77,6 +77,27 @@ function systemBindings() {
 }
 
 /**
+ * Stop GNOME acting on its own shortcuts while one is being captured, so
+ * Super+V reaches the dialog and can be refused, instead of opening the
+ * message tray. gnome-control-center does the same; the Shell may ask the user
+ * first.
+ *
+ * @param {Gtk.Widget} widget Any widget in the window to inhibit.
+ * @returns {Function} Call once to give the shortcuts back.
+ */
+function inhibitSystemShortcuts(widget) {
+    const surface = widget.get_native()?.get_surface();
+    // Only a Gdk.Toplevel surface has these; never let prefs throw without.
+    if (
+        typeof surface?.inhibit_system_shortcuts !== 'function' ||
+        typeof surface.restore_system_shortcuts !== 'function'
+    )
+        return () => {};
+    surface.inhibit_system_shortcuts(null);
+    return () => surface.restore_system_shortcuts();
+}
+
+/**
  * Ask for a key combination. Esc cancels; Backspace disables the shortcut.
  *
  * @param {Adw.PreferencesWindow} window Parent.
@@ -117,6 +138,10 @@ function captureShortcut(window, onAccel) {
     });
     dialog.add_controller(keys);
     dialog.present(window);
+
+    // 'closed' fires on every way out: Esc, Backspace, a capture, Cancel.
+    const restore = inhibitSystemShortcuts(window);
+    dialog.connect('closed', () => restore());
 }
 
 /** A row showing one shortcut, with Set and Turn off buttons. */

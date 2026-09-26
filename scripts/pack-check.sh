@@ -34,11 +34,13 @@ trap 'rm -rf "$WORK"' EXIT
 
 # --extra-source takes a directory and recurses, so modules/ and icons/ go in
 # whole. That matters: naming files individually would silently drop a newly
-# added module. stylesheet.css is named explicitly because it is a single file.
+# added module. stylesheet.css is a single file, named only when the project
+# has one; `just build` ships it on the same condition.
+extra=(--extra-source=modules --extra-source=icons)
+[[ -f stylesheet.css ]] && extra+=(--extra-source=stylesheet.css)
+
 gnome-extensions pack --force -o "$WORK" \
-    --extra-source=modules \
-    --extra-source=icons \
-    --extra-source=stylesheet.css \
+    "${extra[@]}" \
     --schema="$SCHEMA" \
     . >/dev/null
 

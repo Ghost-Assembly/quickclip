@@ -1,4 +1,4 @@
-// resource:///org/gnome/shell/ui/quickSettings.js, as far as modules/panel.js uses it.
+// resource:///org/gnome/shell/ui/quickSettings.js, as far as the extension uses it.
 
 import { FakeActor } from '../support/actors.js';
 import { MenuBase } from './shell-popupmenu.js';
@@ -27,15 +27,22 @@ class QuickMenuToggle extends FakeActor {
         super._init(props);
         this.menu = new QuickToggleMenu();
         this.checked = Boolean(props.checked);
-        // Deliberately NOT destroyed with the toggle. The real QuickSettingsItem
-        // never destroys its menu — Shell 50.3's quickSettings.js has no
-        // destroy call at all, and QuickSettingsMenu._completeAddItem parents
-        // the menu's actor into its own overlay — so an extension that does
-        // not destroy it leaks one menu per disable. This stub once claimed
-        // otherwise, and hid exactly that leak.
+        // Deliberately NOT destroyed with the toggle, and not a child of it.
+        // The real QuickSettingsItem never destroys its menu — Shell 50.3's
+        // quickSettings.js has no destroy call at all, and
+        // QuickSettingsMenu._completeAddItem parents the menu's actor into its
+        // own overlay — so an extension that does not destroy it leaks one
+        // menu, its rows, its focus group and its sessionMode handler per
+        // disable. This stub once claimed otherwise, and hid exactly that leak.
     }
 
-    /** Fire the toggle as a click would; only toggle mode flips it. */
+    /**
+     * Fire the toggle as a click would.
+     *
+     * St.Button flips `checked` itself before 'clicked' only in toggle mode,
+     * which is what lets a tile's checked state drift from the model's when
+     * nothing then re-syncs it. An insensitive tile ignores the click.
+     */
     click() {
         if (!this.reactive) return;
         if (this.toggleMode) this.checked = !this.checked;

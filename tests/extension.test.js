@@ -65,7 +65,7 @@ describe('QuickClipExtension', () => {
         const { extension } = await load();
         extension.enable();
         extension._app._actions.openPrefs();
-        expect(extension.prefsOpened).toBe(1);
+        expect(extension.preferencesOpened).toBe(1);
         extension.disable();
     });
 

@@ -277,7 +277,7 @@ describe('QuickClip', () => {
             timers.advance(PASTE_DELAY_MS);
         }
         expect(Main.notifications).toHaveLength(1);
-        expect(Main.notifications[0].body).toBe(
+        expect(Main.notifications[0].details).toBe(
             'Auto-paste is unavailable. The item was copied; paste it yourself.',
         );
     });
@@ -315,8 +315,8 @@ describe('QuickClip', () => {
 
         expect(clip.writes).toEqual([]);
         expect(Main.notifications).toHaveLength(1);
-        expect(Main.notifications[0].title).toBe('QuickClip');
-        expect(Main.notifications[0].body).not.toContain('hunter2');
+        expect(Main.notifications[0].message).toBe('QuickClip');
+        expect(Main.notifications[0].details).not.toContain('hunter2');
     });
 
     it('pins without duplicates, unpins by position, pauses and opens prefs', () => {

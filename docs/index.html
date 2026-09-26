@@ -1,0 +1,1575 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>QuickClip · Ghost Assembly</title>
+        <meta
+            name="description"
+            content="A private clipboard history in GNOME quick settings, with developer transforms. Memory only; password-manager copies are never recorded."
+        />
+        <meta name="color-scheme" content="dark light" />
+        <meta name="theme-color" content="#03030a" />
+        <link rel="icon" type="image/png" href="assets/favicon.png" />
+        <link rel="apple-touch-icon" href="assets/apple-touch-icon.png" />
+        <link
+            rel="preload"
+            href="assets/fonts/orbitron-latin.woff2"
+            as="font"
+            type="font/woff2"
+            crossorigin
+        />
+        <link rel="stylesheet" href="style.css" />
+
+        <meta property="og:type" content="website" />
+        <meta property="og:site_name" content="Ghost Assembly" />
+        <meta property="og:title" content="QuickClip" />
+        <meta
+            property="og:description"
+            content="A private clipboard history in GNOME quick settings, with developer transforms. Memory only; password-manager copies are never recorded."
+        />
+        <meta property="og:url" content="https://ghost-assembly.github.io/quickclip/" />
+        <meta
+            property="og:image"
+            content="https://ghost-assembly.github.io/quickclip/assets/og-image.png"
+        />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:image:alt" content="The Ghost Assembly logo" />
+        <meta name="twitter:card" content="summary_large_image" />
+    </head>
+    <body>
+        <a class="skip" href="#main">Skip to content</a>
+
+        <div class="night">
+            <header class="bar">
+                <a class="crumb" href="#top" aria-label="QuickClip, back to top">
+                    <img src="assets/emblem.webp" alt="" width="32" height="32" />
+                    <span class="org">Ghost Assembly</span>
+                    <span class="sep" aria-hidden="true">/</span>
+                    <span class="product">QuickClip</span>
+                </a>
+                <nav aria-label="Site">
+                    <ul>
+                        <li><a href="#overview" aria-current="page">Docs</a></li>
+                        <li class="wide-only">
+                            <a
+                                href="https://github.com/Ghost-Assembly/quickclip/releases"
+                                >Releases</a
+                            >
+                        </li>
+                        <li>
+                            <a href="https://github.com/Ghost-Assembly/quickclip"
+                                >GitHub
+                                <svg
+                                    width="15"
+                                    height="15"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="2"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    aria-hidden="true"
+                                >
+                                    <path d="M14 4h6v6" />
+                                    <path d="M20 4l-9 9" />
+                                    <path
+                                        d="M19 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h5"
+                                    /></svg
+                            ></a>
+                        </li>
+                        <li class="wide-only"><span class="version">v0.1.0</span></li>
+                    </ul>
+                </nav>
+            </header>
+
+            <section class="hero" id="top" aria-labelledby="title">
+                <div class="halo" aria-hidden="true"></div>
+                <div>
+                    <p class="eyebrow">GNOME Shell extension</p>
+                    <h1 id="title">QuickClip</h1>
+                    <p class="tagline">
+                        A private clipboard history in GNOME quick settings.
+                    </p>
+                    <p class="lede">
+                        Keeps your last copies — text and images — in memory only, skips
+                        what your password manager copies, and turns JSON, base64, URLs
+                        and timestamps into what you need. Super+Shift+V opens it from
+                        the keyboard.
+                    </p>
+                    <ul class="chips" aria-label="At a glance">
+                        <li class="chip">GNOME Shell 50</li>
+                        <li class="chip">Memory only</li>
+                        <li class="chip">GPL-3.0-or-later</li>
+                    </ul>
+                    <p class="actions">
+                        <a class="button primary" href="#install">
+                            <svg
+                                width="18"
+                                height="18"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                aria-hidden="true"
+                            >
+                                <path d="M12 4v11" />
+                                <path d="M7 10l5 5 5-5" />
+                                <path d="M5 20h14" />
+                            </svg>
+                            Install</a
+                        >
+                        <a
+                            class="button"
+                            href="https://github.com/Ghost-Assembly/quickclip"
+                            >Source on GitHub</a
+                        >
+                    </p>
+                </div>
+
+                <figure
+                    class="shot"
+                    role="img"
+                    aria-label='QuickClip in GNOME: the quick settings tile reads “QuickClip, Recording” and its menu is open on the clipboard history — “Clipboard, 3 items” with Current showing {"id":42,"name":"ghost"} and a Transform row, a pinned ssh-ed25519 key, and Recent copies “kubectl get pods -A” and a URL, with a “Sensitive copy skipped” notice below them.'
+                >
+                    <div class="gtop">
+                        <span class="ws"><i></i><i></i><i></i></span>
+                        <span class="clock">Sat 26 Sep 14:02</span>
+                        <span class="sys">
+                            <svg
+                                width="15"
+                                height="15"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2.2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                            >
+                                <path d="M4.5 10a11 11 0 0 1 15 0" />
+                                <path d="M7.5 13a7 7 0 0 1 9 0" />
+                                <path d="M12 17h.01" />
+                            </svg>
+                            <svg
+                                width="15"
+                                height="15"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2.2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                            >
+                                <path d="M4 10v4h3l5 4V6L7 10z" />
+                                <path d="M16 9a4 4 0 0 1 0 6" />
+                            </svg>
+                            <svg
+                                width="16"
+                                height="16"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2.2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                            >
+                                <rect x="3" y="7" width="16" height="10" rx="2" />
+                                <path d="M21 11v2" />
+                            </svg>
+                        </span>
+                    </div>
+                    <div class="qs">
+                        <div class="qs-row single">
+                            <div class="tile on">
+                                <svg
+                                    width="17"
+                                    height="17"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="2"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                >
+                                    <rect x="6" y="4" width="12" height="17" rx="2" />
+                                    <rect x="9" y="2" width="6" height="4" rx="1" />
+                                </svg>
+                                <span class="t"
+                                    ><b>QuickClip</b><span>Recording</span></span
+                                >
+                                <span class="more"
+                                    ><svg
+                                        width="14"
+                                        height="14"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        stroke-width="2.4"
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                    >
+                                        <path d="M6 9l6 6 6-6" /></svg
+                                ></span>
+                            </div>
+                        </div>
+                        <div class="qs-menu">
+                            <div class="qs-head">
+                                <span class="badge"
+                                    ><svg
+                                        width="17"
+                                        height="17"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        stroke-width="2"
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                    >
+                                        <rect
+                                            x="6"
+                                            y="4"
+                                            width="12"
+                                            height="17"
+                                            rx="2"
+                                        />
+                                        <rect
+                                            x="9"
+                                            y="2"
+                                            width="6"
+                                            height="4"
+                                            rx="1"
+                                        /></svg
+                                ></span>
+                                <span><b>Clipboard</b><span>3 items</span></span>
+                            </div>
+                            <div class="track">
+                                <span class="cover"
+                                    ><svg
+                                        width="30"
+                                        height="30"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        stroke-width="1.6"
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                    >
+                                        <path d="M8 3l-3 3v15h14V6l-3-3" />
+                                        <path d="M8 3h8v3H8z" /></svg
+                                ></span>
+                                <span class="t"
+                                    ><b>Current</b
+                                    ><span>{"id":42,"name":"ghost"}</span></span
+                                >
+                            </div>
+                            <div class="qs-item">
+                                Transform
+                                <svg
+                                    width="14"
+                                    height="14"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="2.4"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                >
+                                    <path d="M9 6l6 6-6 6" />
+                                </svg>
+                            </div>
+                            <div class="qs-sep"></div>
+                            <div class="qs-item qc-pinned">
+                                <svg
+                                    width="14"
+                                    height="14"
+                                    viewBox="0 0 24 24"
+                                    fill="currentColor"
+                                    aria-hidden="true"
+                                >
+                                    <path
+                                        d="M12 2.5l2.7 5.9 6.3.6-4.8 4.3 1.4 6.3-5.6-3.4-5.6 3.4 1.4-6.3-4.8-4.3 6.3-.6z"
+                                    />
+                                </svg>
+                                <span>ssh-ed25519 AAAAC3Nz…</span>
+                            </div>
+                            <div class="qs-sep"></div>
+                            <div class="qs-item">kubectl get pods -A</div>
+                            <div class="qs-item">https://ghost-assembly.github.io/</div>
+                            <div class="qs-item qc-blocked">Sensitive copy skipped</div>
+                        </div>
+                    </div>
+                </figure>
+            </section>
+        </div>
+
+        <div class="docs">
+            <nav class="toc" aria-labelledby="toc-title">
+                <p class="toc-title" id="toc-title">On this page</p>
+                <ol>
+                    <li>
+                        <a href="#overview"><span class="n">01</span>Overview</a>
+                    </li>
+                    <li>
+                        <a href="#install"><span class="n">02</span>Install</a>
+                    </li>
+                    <li>
+                        <a href="#privacy"><span class="n">03</span>Privacy</a>
+                    </li>
+                    <li>
+                        <a href="#transforms"><span class="n">04</span>Transforms</a>
+                    </li>
+                    <li>
+                        <a href="#preferences"><span class="n">05</span>Preferences</a>
+                    </li>
+                    <li>
+                        <a href="#keyboard"
+                            ><span class="n">06</span>Keyboard &amp; mouse</a
+                        >
+                    </li>
+                    <li>
+                        <a href="#architecture"
+                            ><span class="n">07</span>Architecture</a
+                        >
+                    </li>
+                    <li>
+                        <a href="#development"><span class="n">08</span>Development</a>
+                    </li>
+                    <li>
+                        <a href="#releasing"><span class="n">09</span>Releasing</a>
+                    </li>
+                </ol>
+                <ul class="toc-links">
+                    <li>
+                        <a href="https://github.com/Ghost-Assembly/quickclip/issues">
+                            <svg
+                                width="15"
+                                height="15"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                aria-hidden="true"
+                            >
+                                <circle cx="12" cy="12" r="9" />
+                                <path d="M12 8v5" />
+                                <path d="M12 16.5h.01" />
+                            </svg>
+                            Report an issue</a
+                        >
+                    </li>
+                    <li>
+                        <a
+                            href="https://github.com/Ghost-Assembly/quickclip/blob/main/SECURITY.md"
+                        >
+                            <svg
+                                width="15"
+                                height="15"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                aria-hidden="true"
+                            >
+                                <path
+                                    d="M12 3l8 3v6c0 4.5-3.4 8-8 9-4.6-1-8-4.5-8-9V6z"
+                                />
+                            </svg>
+                            Security policy</a
+                        >
+                    </li>
+                    <li>
+                        <a href="https://ghost-assembly.github.io/">
+                            <svg
+                                width="15"
+                                height="15"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                aria-hidden="true"
+                            >
+                                <path d="M19 12H5" />
+                                <path d="M11 6l-6 6 6 6" />
+                            </svg>
+                            All Ghost Assembly projects</a
+                        >
+                    </li>
+                </ul>
+            </nav>
+
+            <main class="content" id="main">
+                <details class="toc-m">
+                    <summary>
+                        On this page
+                        <svg
+                            width="16"
+                            height="16"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2.2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            aria-hidden="true"
+                        >
+                            <path d="M6 9l6 6 6-6" />
+                        </svg>
+                    </summary>
+                    <ol>
+                        <li>
+                            <a href="#overview"><span class="n">01</span>Overview</a>
+                        </li>
+                        <li>
+                            <a href="#install"><span class="n">02</span>Install</a>
+                        </li>
+                        <li>
+                            <a href="#privacy"><span class="n">03</span>Privacy</a>
+                        </li>
+                        <li>
+                            <a href="#transforms"
+                                ><span class="n">04</span>Transforms</a
+                            >
+                        </li>
+                        <li>
+                            <a href="#preferences"
+                                ><span class="n">05</span>Preferences</a
+                            >
+                        </li>
+                        <li>
+                            <a href="#keyboard"
+                                ><span class="n">06</span>Keyboard &amp; mouse</a
+                            >
+                        </li>
+                        <li>
+                            <a href="#architecture"
+                                ><span class="n">07</span>Architecture</a
+                            >
+                        </li>
+                        <li>
+                            <a href="#development"
+                                ><span class="n">08</span>Development</a
+                            >
+                        </li>
+                        <li>
+                            <a href="#releasing"><span class="n">09</span>Releasing</a>
+                        </li>
+                    </ol>
+                </details>
+
+                <section class="section" id="overview" aria-labelledby="overview-title">
+                    <p class="kicker">01</p>
+                    <h2 id="overview-title">Overview</h2>
+                    <p class="lead">
+                        QuickClip adds one tile to quick settings and one popup under
+                        the keyboard. Both show the same history: your recent copies,
+                        kept in the Shell's memory and never written to disk except for
+                        snippets you explicitly pin.
+                    </p>
+                    <div class="cards">
+                        <article class="card">
+                            <span class="icon"
+                                ><svg
+                                    width="20"
+                                    height="20"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="1.8"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    aria-hidden="true"
+                                >
+                                    <rect x="7" y="3" width="10" height="18" rx="2" />
+                                    <path d="M10 3h4v3h-4z" /></svg
+                            ></span>
+                            <h3>One tile, one menu</h3>
+                            <p>
+                                Click the tile to pause or resume recording; its
+                                subtitle reads “Recording” or “Paused”. The menu holds
+                                Current (with a Transform submenu), Pinned, Recent,
+                                Clear history and Preferences.
+                            </p>
+                        </article>
+                        <article class="card">
+                            <span class="icon"
+                                ><svg
+                                    width="20"
+                                    height="20"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="1.8"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    aria-hidden="true"
+                                >
+                                    <rect x="3" y="4" width="18" height="14" rx="2" />
+                                    <path d="M3 15l5-5 4 4 5-6 4 4" /></svg
+                            ></span>
+                            <h3>Text and images</h3>
+                            <p>
+                                Plain text and PNG screenshots are recorded. Anything
+                                else — files, or a rich format with no plain-text or PNG
+                                fallback — is left on the clipboard, untouched.
+                            </p>
+                        </article>
+                        <article class="card">
+                            <span class="icon"
+                                ><svg
+                                    width="20"
+                                    height="20"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="1.8"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    aria-hidden="true"
+                                >
+                                    <path
+                                        d="M12 3l7 3v6c0 4.5-3 8-7 9-4-1-7-4.5-7-9V6z"
+                                    /></svg
+                            ></span>
+                            <h3>Protected copies show, not tell</h3>
+                            <p>
+                                A skipped copy leaves a row in its place —
+                                <em>Sensitive copy skipped</em>,
+                                <em>Copy in an ignored app skipped</em>, or
+                                <em>Too large to keep</em> — so protection stays visible
+                                without ever showing what was blocked.
+                            </p>
+                        </article>
+                        <article class="card">
+                            <span class="icon"
+                                ><svg
+                                    width="20"
+                                    height="20"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="1.8"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    aria-hidden="true"
+                                >
+                                    <circle cx="12" cy="12" r="9" />
+                                    <path d="M8 12h8" /></svg
+                            ></span>
+                            <h3>Memory only</h3>
+                            <p>
+                                Nothing you copy reaches disk, a log or a notification.
+                                The one exception is text you pin, stored in GSettings —
+                                and only because you asked.
+                            </p>
+                        </article>
+                    </div>
+                </section>
+
+                <section class="section" id="install" aria-labelledby="install-title">
+                    <p class="kicker">02</p>
+                    <h2 id="install-title">Install</h2>
+                    <h3>Requires</h3>
+                    <ul class="bullets">
+                        <li><span>GNOME Shell 50.</span></li>
+                        <li>
+                            <span
+                                >A password manager that sets
+                                <code>x-kde-passwordManagerHint</code> on what it
+                                copies, for automatic skipping. KeePassXC and other
+                                KDE-convention managers do; without one, use
+                                <strong>Ignored apps</strong> in Preferences
+                                instead.</span
+                            >
+                        </li>
+                    </ul>
+                    <h3>From a release</h3>
+                    <div class="code night">
+                        <header>
+                            <span>Shell</span
+                            ><span class="dots" aria-hidden="true"
+                                ><i></i><i></i><i></i
+                            ></span>
+                        </header>
+                        <pre
+                            tabindex="0"
+                        ><span class="p">$ </span><span class="k">curl</span> -LO https://github.com/Ghost-Assembly/quickclip/releases/latest/download/quickclip@napalm255.github.io.shell-extension.zip
+<span class="p">$ </span><span class="k">gnome-extensions</span> install --force quickclip@napalm255.github.io.shell-extension.zip
+<span class="p">$ </span><span class="k">gnome-extensions</span> enable quickclip@napalm255.github.io</pre>
+                    </div>
+                    <h3>From a clone</h3>
+                    <div class="code night">
+                        <header>
+                            <span>Shell</span
+                            ><span class="dots" aria-hidden="true"
+                                ><i></i><i></i><i></i
+                            ></span>
+                        </header>
+                        <pre
+                            tabindex="0"
+                        ><span class="p">$ </span><span class="k">just</span> setup
+<span class="p">$ </span><span class="k">just</span> install
+<span class="p">$ </span><span class="k">just</span> enable</pre>
+                    </div>
+                    <div class="note">
+                        <svg
+                            width="20"
+                            height="20"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            aria-hidden="true"
+                        >
+                            <circle cx="12" cy="12" r="9" />
+                            <path d="M12 11v5" />
+                            <path d="M12 7.5h.01" />
+                        </svg>
+                        <p>
+                            <strong>Log out and back in.</strong> A newly installed
+                            extension is only picked up when the Shell next starts. On
+                            Wayland that means a new session.
+                        </p>
+                    </div>
+                </section>
+
+                <section class="section" id="privacy" aria-labelledby="privacy-title">
+                    <p class="kicker">03</p>
+                    <h2 id="privacy-title">Privacy</h2>
+                    <p class="lead">
+                        Everything QuickClip keeps lives in the Shell's memory for as
+                        long as the session runs. The one exception is a snippet you pin
+                        — the only clipboard content ever written to disk, in GSettings
+                        (dconf), and only because you asked.
+                    </p>
+                    <h3>What's skipped</h3>
+                    <ul class="bullets">
+                        <li>
+                            <span
+                                ><strong>Password manager copies.</strong> A copy
+                                carrying the <code>x-kde-passwordManagerHint</code> MIME
+                                type — set by KeePassXC and other apps that follow the
+                                KDE convention — is never read, so its content never
+                                reaches QuickClip's memory. A manager that does not set
+                                this hint, such as some Electron-based ones, is not
+                                detected this way; add it to
+                                <strong>Ignored apps</strong> in Preferences
+                                instead.</span
+                            >
+                        </li>
+                        <li>
+                            <span
+                                ><strong>Ignored apps.</strong> Wayland does not say
+                                which application made a copy, so QuickClip uses
+                                whichever app is focused at the moment of the copy —
+                                which makes this check approximate, not exact.</span
+                            >
+                        </li>
+                        <li>
+                            <span
+                                ><strong>Pausing.</strong> Click the tile, or use the
+                                pause shortcut, to stop new copies being recorded until
+                                you resume.</span
+                            >
+                        </li>
+                        <li>
+                            <span
+                                ><strong>Expiry.</strong> Set <em>Expire after</em> in
+                                Preferences and a copy older than that is dropped.
+                                QuickClip keeps a single timer for whichever item is due
+                                next, and none at all while the history is empty.</span
+                            >
+                        </li>
+                    </ul>
+                    <h3>The lock screen</h3>
+                    <p>
+                        QuickClip declares the <code>unlock-dialog</code> session mode
+                        so its history can survive a screen lock — but only when
+                        <em>Clear on lock</em> is turned off. Either way, while the
+                        screen is locked there is no tile, no popup, no keybinding and
+                        nothing is recorded. With <em>Clear on lock</em> on (the
+                        default), the history empties the moment the screen locks; with
+                        it off, the history stays in memory across the lock and is there
+                        again on unlock.
+                    </p>
+                    <div class="note">
+                        <svg
+                            width="20"
+                            height="20"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            aria-hidden="true"
+                        >
+                            <path d="M12 3l8 3v6c0 4.5-3.4 8-8 9-4.6-1-8-4.5-8-9V6z" />
+                        </svg>
+                        <p>
+                            <strong>Never logged, never notified.</strong> Log lines
+                            carry only the kind of copy or the reason it was skipped —
+                            never its content — and no notification ever quotes what you
+                            copied. Only a pin persists, and only in GSettings.
+                        </p>
+                    </div>
+                    <div class="note">
+                        <svg
+                            width="20"
+                            height="20"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            aria-hidden="true"
+                        >
+                            <circle cx="12" cy="12" r="9" />
+                            <path d="M12 11v5" />
+                            <path d="M12 7.5h.01" />
+                        </svg>
+                        <p>
+                            <strong>Freeing memory.</strong> Dropping an item, clearing
+                            the history, or disabling the extension only drops
+                            QuickClip's own reference to the text. JavaScript engines
+                            are free to keep that string's memory until garbage
+                            collection runs, so a very sensitive copy may stay reachable
+                            in memory slightly longer than the history shows it.
+                        </p>
+                    </div>
+                </section>
+
+                <section
+                    class="section"
+                    id="transforms"
+                    aria-labelledby="transforms-title"
+                >
+                    <p class="kicker">04</p>
+                    <h2 id="transforms-title">Transforms</h2>
+                    <p class="lead">
+                        Every transform is offered from Current's Transform submenu, or
+                        with Tab in the popup, whenever the copy on top qualifies. Two
+                        need no input at all and are always offered: they generate a
+                        fresh value instead of changing the copy.
+                    </p>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th scope="col">Transform</th>
+                                <th scope="col">Example</th>
+                                <th scope="col">Offered when</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td data-label="Transform">Pretty-print JSON</td>
+                                <td data-label="Example">
+                                    <code>{"a":1}</code> → the same, indented two spaces
+                                    per level
+                                </td>
+                                <td data-label="Offered when" class="muted">
+                                    The copy parses as JSON
+                                </td>
+                            </tr>
+                            <tr>
+                                <td data-label="Transform">Minify JSON</td>
+                                <td data-label="Example">
+                                    <code>{ "a": 1 }</code> → <code>{"a":1}</code>
+                                </td>
+                                <td data-label="Offered when" class="muted">
+                                    The copy parses as JSON
+                                </td>
+                            </tr>
+                            <tr>
+                                <td data-label="Transform">Base64 encode</td>
+                                <td data-label="Example">
+                                    <code>hello</code> → <code>aGVsbG8=</code>
+                                </td>
+                                <td data-label="Offered when" class="muted">
+                                    Any non-empty copy
+                                </td>
+                            </tr>
+                            <tr>
+                                <td data-label="Transform">Base64 decode</td>
+                                <td data-label="Example">
+                                    <code>aGVsbG8=</code> → <code>hello</code>
+                                </td>
+                                <td data-label="Offered when" class="muted">
+                                    The copy looks like base64 and decodes to text
+                                </td>
+                            </tr>
+                            <tr>
+                                <td data-label="Transform">URL encode</td>
+                                <td data-label="Example">
+                                    <code>a b/c</code> → <code>a%20b%2Fc</code>
+                                </td>
+                                <td data-label="Offered when" class="muted">
+                                    Encoding would change the copy
+                                </td>
+                            </tr>
+                            <tr>
+                                <td data-label="Transform">URL decode</td>
+                                <td data-label="Example">
+                                    <code>a%20b</code> → <code>a b</code>
+                                </td>
+                                <td data-label="Offered when" class="muted">
+                                    The copy contains <code>%XX</code> escapes
+                                </td>
+                            </tr>
+                            <tr>
+                                <td data-label="Transform">Trim whitespace</td>
+                                <td data-label="Example">
+                                    <code>&nbsp;&nbsp;hi&nbsp;&nbsp;</code> →
+                                    <code>hi</code>
+                                </td>
+                                <td data-label="Offered when" class="muted">
+                                    Leading or trailing whitespace
+                                </td>
+                            </tr>
+                            <tr>
+                                <td data-label="Transform">Collapse whitespace</td>
+                                <td data-label="Example">
+                                    <code>a &nbsp;&nbsp;b</code> → <code>a b</code>
+                                </td>
+                                <td data-label="Offered when" class="muted">
+                                    Runs of whitespace, tabs or newlines
+                                </td>
+                            </tr>
+                            <tr>
+                                <td data-label="Transform">UPPER CASE</td>
+                                <td data-label="Example">
+                                    <code>Hi</code> → <code>HI</code>
+                                </td>
+                                <td data-label="Offered when" class="muted">
+                                    The copy has lower-case letters
+                                </td>
+                            </tr>
+                            <tr>
+                                <td data-label="Transform">lower case</td>
+                                <td data-label="Example">
+                                    <code>Hi</code> → <code>hi</code>
+                                </td>
+                                <td data-label="Offered when" class="muted">
+                                    The copy has upper-case letters
+                                </td>
+                            </tr>
+                            <tr>
+                                <td data-label="Transform">snake_case</td>
+                                <td data-label="Example">
+                                    <code>helloWorld</code> → <code>hello_world</code>
+                                </td>
+                                <td data-label="Offered when" class="muted">
+                                    A single-line identifier under 200 characters
+                                </td>
+                            </tr>
+                            <tr>
+                                <td data-label="Transform">kebab-case</td>
+                                <td data-label="Example">
+                                    <code>helloWorld</code> → <code>hello-world</code>
+                                </td>
+                                <td data-label="Offered when" class="muted">
+                                    A single-line identifier under 200 characters
+                                </td>
+                            </tr>
+                            <tr>
+                                <td data-label="Transform">Unix time → ISO date</td>
+                                <td data-label="Example">
+                                    <code>1700000000</code> →
+                                    <code>2023-11-14T22:13:20.000Z</code>
+                                </td>
+                                <td data-label="Offered when" class="muted">
+                                    A 10- or 13-digit Unix timestamp
+                                </td>
+                            </tr>
+                            <tr>
+                                <td data-label="Transform">ISO date → Unix time</td>
+                                <td data-label="Example">
+                                    <code>2023-11-14T22:13:20Z</code> →
+                                    <code>1700000000</code>
+                                </td>
+                                <td data-label="Offered when" class="muted">
+                                    An ISO date or date-time
+                                </td>
+                            </tr>
+                            <tr>
+                                <td data-label="Transform">New UUID</td>
+                                <td data-label="Example">
+                                    <em>generates</em> <code>0b2b6b0e-…-…</code>
+                                </td>
+                                <td data-label="Offered when" class="muted">
+                                    Always — a generator, ignores the copy
+                                </td>
+                            </tr>
+                            <tr>
+                                <td data-label="Transform">Current time (ISO)</td>
+                                <td data-label="Example">
+                                    <em>generates</em> the current time, e.g.
+                                    <code>2026-09-26T18:02:00.000Z</code>
+                                </td>
+                                <td data-label="Offered when" class="muted">
+                                    Always — a generator, ignores the copy
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <p>
+                        A transform only looks at the first 100,000 characters of a
+                        copy; a longer one offers none. A date-time with no time zone is
+                        read as local time, the same as your system clock, not UTC.
+                    </p>
+                </section>
+
+                <section
+                    class="section"
+                    id="preferences"
+                    aria-labelledby="preferences-title"
+                >
+                    <p class="kicker">05</p>
+                    <h2 id="preferences-title">Preferences</h2>
+                    <p>
+                        Open them from the Extensions app, or with
+                        <code>just prefs</code> from a clone.
+                    </p>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th scope="col">Setting</th>
+                                <th scope="col">Default</th>
+                                <th scope="col">Notes</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td data-label="Setting">History size</td>
+                                <td data-label="Default">20</td>
+                                <td data-label="Notes" class="muted">
+                                    5 to 100. Oldest copies are dropped first.
+                                </td>
+                            </tr>
+                            <tr>
+                                <td data-label="Setting">Image memory (MB)</td>
+                                <td data-label="Default">32</td>
+                                <td data-label="Notes" class="muted">
+                                    0 to 256. Memory copied images may use together; 0
+                                    keeps no images.
+                                </td>
+                            </tr>
+                            <tr>
+                                <td data-label="Setting">Expire after (minutes)</td>
+                                <td data-label="Default">30</td>
+                                <td data-label="Notes" class="muted">
+                                    0 to 1440. 0 keeps a copy until it is pushed out by
+                                    History size.
+                                </td>
+                            </tr>
+                            <tr>
+                                <td data-label="Setting">Clear on lock</td>
+                                <td data-label="Default">On</td>
+                                <td data-label="Notes" class="muted">
+                                    Empty the history when the screen locks.
+                                </td>
+                            </tr>
+                            <tr>
+                                <td data-label="Setting">Paste on select</td>
+                                <td data-label="Default">On</td>
+                                <td data-label="Notes" class="muted">
+                                    Paste the chosen item into the window that had
+                                    focus.
+                                </td>
+                            </tr>
+                            <tr>
+                                <td data-label="Setting">Recording paused</td>
+                                <td data-label="Default">Off</td>
+                                <td data-label="Notes" class="muted">
+                                    Toggled from the tile; not usually set here.
+                                </td>
+                            </tr>
+                            <tr>
+                                <td data-label="Setting">Open the popup</td>
+                                <td data-label="Default">Super+Shift+V</td>
+                                <td data-label="Notes" class="muted">
+                                    A conflicting shortcut is refused, never
+                                    overwritten.
+                                </td>
+                            </tr>
+                            <tr>
+                                <td data-label="Setting">Pause or resume</td>
+                                <td data-label="Default">Not set</td>
+                                <td data-label="Notes" class="muted">
+                                    Same conflict check as the popup shortcut.
+                                </td>
+                            </tr>
+                            <tr>
+                                <td data-label="Setting">Ignored apps</td>
+                                <td data-label="Default">None</td>
+                                <td data-label="Notes" class="muted">
+                                    Copies made while one of these is focused are
+                                    skipped.
+                                </td>
+                            </tr>
+                            <tr>
+                                <td data-label="Setting">Terminal apps</td>
+                                <td data-label="Default">
+                                    Ptyxis, GNOME Console, GNOME Terminal, kitty,
+                                    Alacritty, foot, WezTerm, Ghostty
+                                </td>
+                                <td data-label="Notes" class="muted">
+                                    These paste with Ctrl+Shift+V instead of Ctrl+V.
+                                </td>
+                            </tr>
+                            <tr>
+                                <td data-label="Setting">Pinned snippets</td>
+                                <td data-label="Default">None</td>
+                                <td data-label="Notes" class="muted">
+                                    The only clipboard content stored on disk; kept
+                                    until you unpin it.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <p>
+                        Setting a shortcut is checked against GNOME's own bindings (the
+                        window manager, the Shell, mutter, media keys and any custom
+                        shortcut) and QuickClip's other shortcut. A conflicting choice
+                        is refused, with a toast naming what already uses it — never
+                        silently overwritten. Other extensions' shortcuts are not
+                        visible to this check, so a conflict with one of those is not
+                        caught here.
+                    </p>
+                </section>
+
+                <section class="section" id="keyboard" aria-labelledby="keyboard-title">
+                    <p class="kicker">06</p>
+                    <h2 id="keyboard-title">Keyboard &amp; mouse</h2>
+                    <p>
+                        Super+Shift+V opens the popup from anywhere, unless the screen
+                        is locked.
+                    </p>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th scope="col">Input</th>
+                                <th scope="col">Does</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td data-label="Input">
+                                    <span class="keys"
+                                        ><kbd class="kbd">Super</kbd>+<kbd class="kbd"
+                                            >Shift</kbd
+                                        >+<kbd class="kbd">V</kbd></span
+                                    >
+                                </td>
+                                <td data-label="Does">Open the popup</td>
+                            </tr>
+                            <tr>
+                                <td data-label="Input">
+                                    <span class="keys">Typing</span>
+                                </td>
+                                <td data-label="Does">
+                                    Filter the list by matching text
+                                </td>
+                            </tr>
+                            <tr>
+                                <td data-label="Input">
+                                    <span class="keys"
+                                        ><kbd class="kbd">↑</kbd> /
+                                        <kbd class="kbd">↓</kbd></span
+                                    >
+                                </td>
+                                <td data-label="Does">
+                                    Move the selection, wrapping at both ends
+                                </td>
+                            </tr>
+                            <tr>
+                                <td data-label="Input">
+                                    <span class="keys"
+                                        ><kbd class="kbd">Enter</kbd></span
+                                    >
+                                </td>
+                                <td data-label="Does">
+                                    Copy the selection and, after a short delay, paste
+                                    it into the window that had focus
+                                </td>
+                            </tr>
+                            <tr>
+                                <td data-label="Input">
+                                    <span class="keys"><kbd class="kbd">Tab</kbd></span>
+                                </td>
+                                <td data-label="Does">
+                                    Switch to the Transform list for the selection; Tab
+                                    again returns
+                                </td>
+                            </tr>
+                            <tr>
+                                <td data-label="Input">
+                                    <span class="keys"><kbd class="kbd">Esc</kbd></span>
+                                </td>
+                                <td data-label="Does">
+                                    Leave the Transform list, or close the popup — twice
+                                    from Transform view
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <p>
+                        Auto-paste sends Ctrl+Shift+V to the apps listed in
+                        <em>Terminal apps</em> — Ctrl+V would just insert a literal “v”
+                        there — and Ctrl+V to everything else, after a short delay so
+                        the previous window has focus back first.
+                    </p>
+                    <div class="note">
+                        <svg
+                            width="20"
+                            height="20"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            aria-hidden="true"
+                        >
+                            <path d="M12 3l8 3v6c0 4.5-3.4 8-8 9-4.6-1-8-4.5-8-9V6z" />
+                        </svg>
+                        <p>
+                            Clicking an item in the quick settings tile's menu copies it
+                            to the clipboard but never pastes it — pasting only happens
+                            from the keyboard popup, and only when
+                            <em>Paste on select</em> is on. Super+V is untouched: it
+                            still opens GNOME's own notification list.
+                        </p>
+                    </div>
+                </section>
+
+                <section
+                    class="section"
+                    id="architecture"
+                    aria-labelledby="architecture-title"
+                >
+                    <p class="kicker">07</p>
+                    <h2 id="architecture-title">Architecture</h2>
+                    <p>
+                        Every decision — what to record, what a transform does, what a
+                        shortcut may take — lives in a module that imports nothing else
+                        in the project, so the suite can test it whole on plain Node.
+                    </p>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th scope="col">Module</th>
+                                <th scope="col">Job</th>
+                                <th scope="col">Deps</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td data-label="Module">
+                                    <code>modules/model.js</code>
+                                </td>
+                                <td data-label="Job" class="muted">
+                                    History: add/dedupe, size and image-budget caps,
+                                    pin/unpin, <code>expire(now)</code>,
+                                    <code>nextExpiry()</code>, clear, change callbacks
+                                </td>
+                                <td data-label="Deps">none (pure)</td>
+                            </tr>
+                            <tr>
+                                <td data-label="Module">
+                                    <code>modules/transforms.js</code>
+                                </td>
+                                <td data-label="Job" class="muted">
+                                    The
+                                    <code>{id, label, applies(text), run(text)}</code>
+                                    list; uuid and clock injected
+                                </td>
+                                <td data-label="Deps">none (pure)</td>
+                            </tr>
+                            <tr>
+                                <td data-label="Module">
+                                    <code>modules/privacy.js</code>
+                                </td>
+                                <td data-label="Job" class="muted">
+                                    <code
+                                        >shouldRecord({mimetypes, appId, paused,
+                                        ignored})</code
+                                    >
+                                    → <code>{record, reason}</code>
+                                </td>
+                                <td data-label="Deps">none (pure)</td>
+                            </tr>
+                            <tr>
+                                <td data-label="Module">
+                                    <code>modules/clipboard.js</code>
+                                </td>
+                                <td data-label="Job" class="muted">
+                                    <code>Meta.Selection</code>
+                                    <code>owner-changed</code> (CLIPBOARD) → read via
+                                    <code>St.Clipboard</code>; write text/image
+                                </td>
+                                <td data-label="Deps">Meta, St</td>
+                            </tr>
+                            <tr>
+                                <td data-label="Module">
+                                    <code>modules/paste.js</code>
+                                </td>
+                                <td data-label="Job" class="muted">
+                                    Virtual keyboard device; Ctrl+V / Ctrl+Shift+V by
+                                    focused app id
+                                </td>
+                                <td data-label="Deps">Clutter, Shell</td>
+                            </tr>
+                            <tr>
+                                <td data-label="Module">
+                                    <code>modules/panel.js</code>
+                                </td>
+                                <td data-label="Job" class="muted">
+                                    <code>QuickMenuToggle</code>: subtitle
+                                    Recording/Paused; menu Current (+transform row),
+                                    Pinned, Recent, Clear history, Preferences
+                                </td>
+                                <td data-label="Deps">Shell UI</td>
+                            </tr>
+                            <tr>
+                                <td data-label="Module">
+                                    <code>modules/popup.js</code>
+                                </td>
+                                <td data-label="Job" class="muted">
+                                    Modal list: Pinned then Recent; type-to-filter text;
+                                    ↑/↓, Enter = copy+paste, Tab = transform row, Esc
+                                </td>
+                                <td data-label="Deps">Shell UI</td>
+                            </tr>
+                            <tr>
+                                <td data-label="Module">
+                                    <code>modules/settings.js</code>,
+                                    <code>prefs.js</code>
+                                </td>
+                                <td data-label="Job" class="muted">
+                                    GSettings wrapper; Adw preferences window
+                                </td>
+                                <td data-label="Deps">Gio, Adw</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div
+                        class="diagram"
+                        role="img"
+                        aria-label="A clipboard change reaches modules/clipboard.js, is checked by modules/privacy.js's shouldRecord, and is kept by modules/model.js; modules/panel.js and modules/popup.js ask model.js what to show."
+                    >
+                        <div class="node">
+                            <b>Clipboard</b
+                            ><span
+                                >Meta.Selection's owner-changed, read via
+                                St.Clipboard.</span
+                            >
+                        </div>
+                        <span class="arrow"
+                            ><svg
+                                width="22"
+                                height="22"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                            >
+                                <path d="M5 12h14" />
+                                <path d="M13 6l6 6-6 6" /></svg
+                        ></span>
+                        <div class="node">
+                            <b>privacy.js</b
+                            ><span>shouldRecord decides record or skip, and why.</span>
+                        </div>
+                        <span class="arrow"
+                            ><svg
+                                width="22"
+                                height="22"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                            >
+                                <path d="M5 12h14" />
+                                <path d="M13 6l6 6-6 6" /></svg
+                        ></span>
+                        <div class="node key">
+                            <b>model.js</b
+                            ><span
+                                >Every decision about the history. Imports nothing;
+                                tested on Node.</span
+                            >
+                        </div>
+                        <span class="arrow"
+                            ><svg
+                                width="22"
+                                height="22"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                            >
+                                <path d="M19 12H5" />
+                                <path d="M11 6l-6 6 6 6" /></svg
+                        ></span>
+                        <div class="node">
+                            <b>panel.js / popup.js</b
+                            ><span>The tile's menu and the keyboard popup.</span>
+                        </div>
+                    </div>
+                    <div class="note">
+                        <svg
+                            width="20"
+                            height="20"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            aria-hidden="true"
+                        >
+                            <path d="M12 3l8 3v6c0 4.5-3.4 8-8 9-4.6-1-8-4.5-8-9V6z" />
+                        </svg>
+                        <p>
+                            <strong>Two files are excluded from coverage,</strong> both
+                            toolkit plumbing a unit test could only assert against a
+                            stub of the toolkit: <code>prefs.js</code> (Adw and Gtk
+                            widget construction — the key list, wording and shortcut
+                            rules it uses live in <code>modules/settings.js</code> and
+                            <code>modules/accel.js</code>, tested directly) and
+                            <code>modules/clipboard.js</code> (<code>St.Clipboard</code>
+                            and <code>Meta.Selection</code> calls, checked against a
+                            real Shell by <code>scripts/headless-check.sh</code>
+                            instead). See the
+                            <a
+                                href="https://github.com/Ghost-Assembly/quickclip/blob/main/SECURITY.md"
+                                >security policy</a
+                            >.
+                        </p>
+                    </div>
+                </section>
+
+                <section
+                    class="section"
+                    id="development"
+                    aria-labelledby="development-title"
+                >
+                    <p class="kicker">08</p>
+                    <h2 id="development-title">Development</h2>
+                    <div class="code night">
+                        <header>
+                            <span>justfile</span
+                            ><span class="dots" aria-hidden="true"
+                                ><i></i><i></i><i></i
+                            ></span>
+                        </header>
+                        <pre
+                            tabindex="0"
+                        ><span class="k">just</span>              <span class="c"># list every recipe</span>
+<span class="k">just</span> test         <span class="c"># unit suite</span>
+<span class="k">just</span> test-docs    <span class="c"># this site, in Chromium and Firefox</span>
+<span class="k">just</span> lint         <span class="c"># eslint, prettier, gschema, shellcheck</span>
+<span class="k">just</span> ci           <span class="c"># what CI runs: lint, tests, test-docs, security, build</span>
+<span class="k">just</span> test-live    <span class="c"># headless gnome-shell smoke test, then the packed zip</span>
+<span class="k">just</span> coverage     <span class="c"># unit suite with a coverage report</span>
+<span class="k">just</span> docs         <span class="c"># serve this site on localhost:8000</span></pre>
+                    </div>
+                    <h3>Testing</h3>
+                    <p>
+                        The unit suite runs on Node with the Shell's modules replaced by
+                        recording stubs. <code>just test-live</code> adds what CI cannot
+                        have: it boots a headless GNOME Shell, enables QuickClip, and
+                        checks that it starts listening and survives a disable and
+                        re-enable with no JavaScript errors or leaked signal or timeout
+                        sources. When a virtual clipboard can own the selection in that
+                        headless session it also checks that a plain-text copy is
+                        recorded and a password-manager copy is skipped; a headless
+                        Shell has no real seat, so those two checks are sometimes
+                        skipped there and covered by the manual checklist below instead.
+                    </p>
+                    <h3>Manual checklist</h3>
+                    <p>
+                        Run through this in a real session before a release; nothing
+                        here can run in CI, which has no GNOME Shell.
+                    </p>
+                    <ul class="bullets">
+                        <li>
+                            <span
+                                >The tile shows “QuickClip / Recording”; clicking it
+                                shows “Paused”; a copy while paused is not listed;
+                                clicking again resumes.</span
+                            >
+                        </li>
+                        <li>
+                            <span
+                                >Copy text in a GTK app → it appears under Recent and as
+                                Current.</span
+                            >
+                        </li>
+                        <li>
+                            <span
+                                >Copy a password from KeePassXC (if installed) → a
+                                “Sensitive copy skipped” row, and nothing new under
+                                Recent.</span
+                            >
+                        </li>
+                        <li>
+                            <span
+                                >Add the focused app to Ignored apps in Preferences,
+                                copy from it → “Copy in an ignored app skipped”.</span
+                            >
+                        </li>
+                        <li>
+                            <span
+                                >Take a screenshot to the clipboard → an Image row with
+                                a thumbnail and size.</span
+                            >
+                        </li>
+                        <li>
+                            <span
+                                >Super+Shift+V opens the popup; typing filters; ↑/↓
+                                move; Enter pastes into the previous window (a GTK app
+                                takes Ctrl+V; Ptyxis takes Ctrl+Shift+V). Check Ghostty
+                                too, if it is available.</span
+                            >
+                        </li>
+                        <li>
+                            <span
+                                >Tab shows transforms for <code>{"a":1}</code>; Enter on
+                                Pretty-print JSON pastes the pretty result.</span
+                            >
+                        </li>
+                        <li>
+                            <span
+                                >A failing transform (forcing URL decode on
+                                <code>%E0%A4%A</code>, say) is not offered; no
+                                notification ever quotes clipboard text.</span
+                            >
+                        </li>
+                        <li>
+                            <span
+                                >Pin from Recent; the snippet appears under Pinned and
+                                in Preferences; unpin works from both.</span
+                            >
+                        </li>
+                        <li>
+                            <span
+                                >Set expiry to 1 minute; a copy disappears after about a
+                                minute.</span
+                            >
+                        </li>
+                        <li>
+                            <span
+                                >Lock the screen: the lock screen's quick settings has
+                                no QuickClip tile; Super+Shift+V does nothing; unlock →
+                                history empty (Clear on lock on).</span
+                            >
+                        </li>
+                        <li>
+                            <span
+                                >Turn Clear on lock off, copy something, lock, unlock →
+                                it is still listed; copies made while locked are
+                                not.</span
+                            >
+                        </li>
+                        <li>
+                            <span>Super+V still opens GNOME's notification list.</span>
+                        </li>
+                        <li>
+                            <span
+                                >In Preferences, setting the popup shortcut to Super+V
+                                is refused with a toast naming
+                                <code>toggle-message-tray</code>.</span
+                            >
+                        </li>
+                        <li>
+                            <span
+                                ><code>just logs</code> shows only
+                                <code>[quickclip]</code> lines with kinds and reasons —
+                                no clipboard content.</span
+                            >
+                        </li>
+                    </ul>
+                </section>
+
+                <section
+                    class="section"
+                    id="releasing"
+                    aria-labelledby="releasing-title"
+                >
+                    <p class="kicker">09</p>
+                    <h2 id="releasing-title">Releasing</h2>
+                    <p>
+                        Set the version in <code>metadata.json</code> and
+                        <code>package.json</code>, commit, tag and push. The release
+                        workflow checks the tag against both files before building.
+                    </p>
+                    <div class="code night">
+                        <header>
+                            <span>Shell</span
+                            ><span class="dots" aria-hidden="true"
+                                ><i></i><i></i><i></i
+                            ></span>
+                        </header>
+                        <pre
+                            tabindex="0"
+                        ><span class="p">$ </span><span class="k">git</span> tag v0.1.0
+<span class="p">$ </span><span class="k">git</span> push origin v0.1.0</pre>
+                    </div>
+                </section>
+            </main>
+        </div>
+
+        <footer class="foot night">
+            <div class="brand">
+                <img src="assets/emblem.webp" alt="" width="52" height="52" />
+                <div>
+                    <b>Ghost Assembly</b
+                    ><span
+                        >Small, sharp tools for the Linux desktop and the cloud.</span
+                    >
+                </div>
+            </div>
+            <nav aria-label="Footer">
+                <ul>
+                    <li>
+                        <a href="https://ghost-assembly.github.io/">All projects</a>
+                    </li>
+                    <li>
+                        <a href="https://github.com/Ghost-Assembly/quickclip">Source</a>
+                    </li>
+                    <li>
+                        <a href="https://github.com/Ghost-Assembly/quickclip/releases"
+                            >Releases</a
+                        >
+                    </li>
+                    <li>
+                        <a
+                            href="https://github.com/Ghost-Assembly/quickclip/blob/main/SECURITY.md"
+                            >Security</a
+                        >
+                    </li>
+                </ul>
+            </nav>
+            <p class="legal">QuickClip is free software under the GPL-3.0-or-later.</p>
+        </footer>
+    </body>
+</html>

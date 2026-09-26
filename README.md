@@ -1,18 +1,18 @@
 # QuickClip
 
-A private clipboard history in GNOME quick settings, with developer transforms.
+A private clipboard history in Quick Settings, with developer transforms.
 
 Keeps your last copies — text and images — in memory only, skips copies that
 KeePassXC and other password managers mark as secret, and turns JSON, base64,
 URLs and timestamps into what you need. Super+Shift+V opens it from the
 keyboard.
 
-**[Documentation →](https://ghost-assembly.github.io/quickclip/)** —
+**[Documentation →](https://ghost-assembly.com/quickclip/)** —
 architecture, testing, packaging and releasing.
 
 ## What it does
 
-- **Quick settings tile.** Click to pause or resume recording; the subtitle
+- **Quick Settings tile.** Click to pause or resume recording; the subtitle
   reads "Recording" or "Paused". Its menu holds Current (with a Transform
   submenu), Pinned, Recent, Clear history and Preferences.
 - **Keyboard popup.** Super+Shift+V opens the same history under the
@@ -82,7 +82,7 @@ just docs         # serve the documentation site
 
 Every decision lives in a module that imports no GNOME API, so the unit suite
 tests it on plain Node; see the
-[architecture notes](https://ghost-assembly.github.io/quickclip/#architecture).
+[architecture notes](https://ghost-assembly.com/quickclip/#architecture).
 
 ## Releasing
 

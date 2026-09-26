@@ -74,6 +74,16 @@ export const ClipPopup = GObject.registerClass(
             );
             this.setInitialKeyFocus(this._entry);
             this._rebuild();
+
+            // A plain connect, as panel.js's toggle does: connectObject with
+            // this as its own owner could be released by the destroy it is
+            // meant to handle. The entry's clutter_text is a real Clutter
+            // child of the entry in the Shell, so its handlers are cleaned up
+            // when the entry is destroyed there; nothing guarantees that in
+            // every host, so it is done here too.
+            this.connect('destroy', () =>
+                this._entry.clutter_text.disconnectObject(this),
+            );
         }
 
         _rebuild() {

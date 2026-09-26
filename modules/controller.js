@@ -240,6 +240,9 @@ export class QuickClip {
     }
 
     _paste() {
+        // _hideUi cancels the timer on lock; this is the second line, so a
+        // Ctrl+V can never land in the unlock dialog.
+        if (this._locked) return;
         const keys = pasteKeys(
             this._source.focusedAppId(),
             this._settings.get_strv(KEYS.TERMINAL_APPS),

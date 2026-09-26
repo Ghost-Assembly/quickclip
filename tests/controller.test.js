@@ -100,6 +100,50 @@ describe('QuickClip', () => {
         expect(Main.wm.bindings.size).toBe(2);
     });
 
+    it('shows nothing when enabled on a locked screen, then comes up on unlock', () => {
+        Main.sessionMode.isLocked = true;
+        const { clip } = build();
+
+        expect(liveTile()).toHaveLength(0);
+        expect(Main.wm.bindings.size).toBe(0);
+        expect(clip.listening).toBe(false);
+
+        Main.lock(false);
+
+        expect(liveTile()).toHaveLength(1);
+        expect(Main.wm.bindings.size).toBe(2);
+        expect(clip.listening).toBe(true);
+    });
+
+    it('cancels a pending paste when the screen locks', async () => {
+        const { app, clip, timers } = build();
+        clip.copyText('pick me');
+        await flush();
+        app.openPopup();
+        app._popup.initialKeyFocus.press(Clutter.KEY_Return);
+
+        Main.lock(true);
+        timers.advance(PASTE_DELAY_MS);
+
+        expect(keysSent()).toEqual([]);
+        expect(timers.pending).toBe(0);
+    });
+
+    it('never pastes while locked, even if the paste timer survives', async () => {
+        const { app, clip, timers } = build();
+        clip.copyText('pick me');
+        await flush();
+        app.openPopup();
+        app._popup.initialKeyFocus.press(Clutter.KEY_Return);
+
+        // Stand in for a regression in _hideUi that leaves the timer running.
+        vi.spyOn(app, '_hideUi').mockImplementation(() => {});
+        Main.lock(true);
+        timers.advance(PASTE_DELAY_MS);
+
+        expect(keysSent()).toEqual([]);
+    });
+
     it('opens one popup from the shortcut, and none while locked', () => {
         const { app } = build();
         Main.wm.bindings.get(KEYS.POPUP_SHORTCUT).handler();

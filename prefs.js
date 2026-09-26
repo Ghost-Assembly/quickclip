@@ -143,12 +143,16 @@ function shortcutRow(window, settings, key) {
             const [conflict] = findConflicts(accel, [...systemBindings(), ...others]);
             if (conflict) {
                 window.add_toast(
+                    // Adw.Toast parses its title as markup by default; every
+                    // accelerator has "<" and ">", and conflict.source can be
+                    // a user-typed custom shortcut name.
                     new Adw.Toast({
                         title: format(
                             _('%s is already used by %s'),
                             accel,
                             conflict.source,
                         ),
+                        use_markup: false,
                     }),
                 );
                 return;

@@ -169,6 +169,12 @@ describe('Panel', () => {
         expect(calls.filter(([name]) => name === 'expire')).toHaveLength(2);
     });
 
+    it('says the history is empty rather than the clipboard', () => {
+        const { toggle } = build();
+        expect(rowWith(toggle, 'Nothing recorded yet')).toBeDefined();
+        expect(rowWith(toggle, 'Clipboard is empty')).toBeUndefined();
+    });
+
     it('clears and opens preferences from the menu', () => {
         const { toggle, calls } = build();
         rowWith(toggle, 'Clear history').activate();

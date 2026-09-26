@@ -156,7 +156,7 @@ const QuickClipToggle = GObject.registerClass(
             const _ = this._gettext;
             this._current.removeAll();
 
-            const text = current ? rowText(current, _) : _('Clipboard is empty');
+            const text = current ? rowText(current, _) : _('Nothing recorded yet');
             const row = this._withThumb(
                 noteRow(text, 'quickclip-current'),
                 current ?? {},

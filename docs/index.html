@@ -1194,6 +1194,19 @@
                         <tbody>
                             <tr>
                                 <td data-label="Module">
+                                    <code>extension.js</code>
+                                </td>
+                                <td data-label="Job" class="muted">
+                                    The entry point, deliberately thin: builds
+                                    <code>ClipboardSource</code>,
+                                    <code>Paster</code> and <code>QuickClip</code> on
+                                    enable and tears them down on disable. Nothing runs
+                                    at import time.
+                                </td>
+                                <td data-label="Deps">GLib, Shell extensions base</td>
+                            </tr>
+                            <tr>
+                                <td data-label="Module">
                                     <code>modules/model.js</code>
                                 </td>
                                 <td data-label="Job" class="muted">

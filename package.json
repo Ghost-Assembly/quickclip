@@ -1,7 +1,7 @@
 {
     "name": "quickclip",
     "version": "0.1.0",
-    "description": "A private clipboard history with developer transforms in GNOME quick settings",
+    "description": "A private clipboard history in Quick Settings, with developer transforms.",
     "license": "GPL-3.0-or-later",
     "private": true,
     "type": "module",

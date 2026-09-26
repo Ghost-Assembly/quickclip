@@ -59,6 +59,12 @@ in CI or from this agent's sandbox.
   pretending it took.
 - **`Meta.KeyBindingFlags.IGNORE_AUTOREPEAT` on both shortcuts.** A held key
   must not repeat-fire an action.
+- **While the screen is locked there is no tile, no popup, no keybinding and
+  no clipboard listener.** `modules/controller.js` tears all four down on
+  lock and rebuilds them on unlock; that is what makes declaring the
+  `unlock-dialog` session mode safe — it exists only so the history can
+  survive the lock in memory when _Clear on lock_ (on by default) is turned
+  off, not so QuickClip can keep working while locked.
 - **Decisions live in modules with no GNOME import.** `model.js`,
   `transforms.js`, `privacy.js`, `listing.js`, `accel.js` and `settings.js`
   import nothing from `gi://` or `resource:///org/gnome/shell/`, so Vitest

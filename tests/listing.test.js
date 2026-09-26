@@ -41,6 +41,12 @@ describe('preview', () => {
         const spaced = `a${' '.repeat(1000)}b`;
         expect(preview(spaced)).toBe('a…');
     });
+
+    it('never ends in half of a surrogate pair at the scan boundary', () => {
+        const result = preview(' '.repeat(239) + '\u{1F600}' + 'rest of the text');
+        expect(result).not.toMatch(/[\uD800-\uDBFF](?![\uDC00-\uDFFF])/);
+        expect(result.endsWith('…')).toBe(true);
+    });
 });
 
 describe('rowText and formatSize', () => {

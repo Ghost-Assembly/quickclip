@@ -33,7 +33,10 @@ export function fill(template, value) {
  * @returns {string} The preview; '' for blank text.
  */
 export function preview(text, max = PREVIEW_CHARS) {
-    const head = text.slice(0, SCAN_CHARS);
+    let head = text.slice(0, SCAN_CHARS);
+    // Drop a trailing unpaired high surrogate if a surrogate pair straddles
+    // the scan boundary.
+    if (/[\uD800-\uDBFF]$/.test(head)) head = head.slice(0, -1);
     const flat = head.replace(/\s+/g, ' ').trim();
     const chars = Array.from(flat);
     // trim() on the tail only looks at its ends, so this stays cheap on a

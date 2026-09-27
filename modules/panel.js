@@ -72,6 +72,10 @@ const QuickClipToggle = GObject.registerClass(
             // Item id -> icon: one Gio.BytesIcon per image, reused across
             // rebuilds instead of a new one each time.
             this._thumbs = new Map();
+            // Whether forgetHistory() has already run since the last sync():
+            // makes it a once-per-closed-period release rather than a no-op
+            // rebuild on every History change while the menu stays shut.
+            this._forgotten = false;
 
             this._current = new PopupMenu.PopupMenuSection();
             this._pinned = new PopupMenu.PopupMenuSection();
@@ -106,6 +110,7 @@ const QuickClipToggle = GObject.registerClass(
          */
         sync({ items, current, blocked, pinned, paused }) {
             const _ = this._gettext;
+            this._forgotten = false;
             this.checked = !paused;
             this.subtitle = paused ? _('Paused') : _('Recording');
             this.menu.setHeader(
@@ -124,6 +129,24 @@ const QuickClipToggle = GObject.registerClass(
             const live = new Set(items.map(item => item.id));
             for (const id of [...this._thumbs.keys()])
                 if (!live.has(id)) this._thumbs.delete(id);
+        }
+
+        /**
+         * Release what the closed menu's rows hold onto — their labels, their
+         * activate/Pin closures over an item, and the image thumbnails (a
+         * Gio.BytesIcon holds the GLib.Bytes, and so does _thumbs) — without
+         * rebuilding. Called while the menu is closed and History changes, so
+         * a copy History has already dropped is not kept alive by this menu
+         * until the next open. Idempotent per closed period: sync() clears
+         * the flag for the next one, so this does the release once rather
+         * than on every change while nobody can see the menu anyway.
+         */
+        forgetHistory() {
+            if (this._forgotten) return;
+            this._forgotten = true;
+            this._current.removeAll();
+            this._recent.removeAll();
+            this._thumbs.clear();
         }
 
         _thumb(item) {
@@ -284,9 +307,12 @@ export class Panel {
         // A History change while the menu is open is shown right away, same
         // as before; while closed, the wrapped open() above rebuilds it, so
         // an idle Shell isn't running every transform's applicable() for
-        // every copy nobody is looking at.
+        // every copy nobody is looking at. forgetHistory() still releases
+        // the closed menu's current rows once, so a dropped copy's text,
+        // closures and thumbnail are not kept alive until the next open.
         this._unsubscribe = this._history.onChange(() => {
             if (this._toggle?.menu.isOpen) this.sync();
+            else this._toggle?.forgetHistory();
         });
         this.sync();
     }

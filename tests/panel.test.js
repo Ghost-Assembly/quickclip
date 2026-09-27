@@ -201,7 +201,36 @@ describe('Panel', () => {
 
         expect(applies).not.toHaveBeenCalled();
         expect(rowWith(toggle, 'hello')).toBeUndefined();
-        expect(rowWith(toggle, 'Nothing recorded yet')).toBeDefined();
+        // Not still showing the placeholder built at enable() either:
+        // forgetHistory() released the closed menu's rows once, rather than
+        // leaving the last build's rows (and their thumbnails and closures
+        // over an item) referenced until the next open.
+        expect(rowWith(toggle, 'Nothing recorded yet')).toBeUndefined();
+    });
+
+    it('has no row left for a copy that expires while the menu stays closed', () => {
+        const applies = vi.fn(() => true);
+        const transform = {
+            id: 'fake',
+            label: 'Fake',
+            generator: false,
+            applies,
+            run: text => text,
+        };
+        const { toggle, history, timers } = build(
+            {},
+            { transforms: [transform], expireMs: 1000 },
+        );
+        history.add({ kind: KIND.TEXT, text: 'temp' });
+        toggle.menu.open();
+        toggle.menu.close();
+        applies.mockClear();
+
+        timers.advance(2000);
+        history.expire();
+
+        expect(rowWith(toggle, 'temp')).toBeUndefined();
+        expect(applies).not.toHaveBeenCalled();
     });
 
     it('shows the new rows, with expired ones dropped, on the same open', () => {
@@ -214,6 +243,30 @@ describe('Panel', () => {
 
         expect(rowWith(toggle, 'new')).toBeDefined();
         expect(rowWith(toggle, 'old')).toBeUndefined();
+    });
+
+    // Pins the ordering C1 exists for: the rebuild has to be done by the time
+    // 'open-state-changed' fires, because Shell 50.3 has already measured the
+    // menu's height by then. A test that only checks the rows after open()
+    // returns cannot tell this apart from expire()/sync() running after the
+    // real open — this one reads the rows from inside the signal handler,
+    // the same moment the Shell would measure them.
+    it('has already rebuilt by the time open-state-changed fires', () => {
+        const { toggle, history, timers } = build({}, { expireMs: 1000 });
+        history.add({ kind: KIND.TEXT, text: 'old' });
+        timers.advance(2000);
+        history.add({ kind: KIND.TEXT, text: 'new' });
+
+        const seen = {};
+        toggle.menu.connect('open-state-changed', (_menu, open) => {
+            if (open) {
+                seen.old = Boolean(rowWith(toggle, 'old'));
+                seen.new = Boolean(rowWith(toggle, 'new'));
+            }
+        });
+        toggle.menu.open();
+
+        expect(seen).toEqual({ old: false, new: true });
     });
 
     it('still syncs a History change immediately while the menu is open', () => {

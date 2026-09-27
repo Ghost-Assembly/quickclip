@@ -62,6 +62,12 @@ describe('canBeShortcut', () => {
         expect(canBeShortcut('<Shift>F5', 0)).toBe(true);
     });
 
+    // Delete has a code point (0x7f), unlike F5, but a control character, so
+    // this exercises the \p{Cc} half of the rule rather than codePoint <= 0.
+    it('takes Shift+Delete, since Delete types a control character', () => {
+        expect(canBeShortcut('<Shift>Delete', 0x7f)).toBe(true);
+    });
+
     // Shift with these selects text, moves focus or ends a line in every
     // application, though none of them types a visible character. Code points
     // as Gdk.keyval_to_unicode gives them under gjs; ISO_Left_Tab is what GTK
@@ -97,9 +103,12 @@ describe('canBeShortcut', () => {
         },
     );
 
+    // Not Tab: Gtk.accelerator_valid, which prefs.js asks first, refuses Tab
+    // with any modifier.
     it('takes the same keys with a modifier other than Shift', () => {
         expect(canBeShortcut('<Control>Left', 0)).toBe(true);
-        expect(canBeShortcut('<Super>Tab', code('\t'))).toBe(true);
+        expect(canBeShortcut('<Super>Left', 0)).toBe(true);
+        expect(canBeShortcut('<Control>Return', code('\r'))).toBe(true);
     });
 
     it('takes any key with Ctrl, Alt or Super', () => {

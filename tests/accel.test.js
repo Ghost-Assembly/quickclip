@@ -60,7 +60,46 @@ describe('canBeShortcut', () => {
 
     it('takes Shift with a key that types nothing', () => {
         expect(canBeShortcut('<Shift>F5', 0)).toBe(true);
-        expect(canBeShortcut('<Shift>Tab', code('\t'))).toBe(true);
+    });
+
+    // Shift with these selects text, moves focus or ends a line in every
+    // application, though none of them types a visible character. Code points
+    // as Gdk.keyval_to_unicode gives them under gjs; ISO_Left_Tab is what GTK
+    // reports for Shift+Tab, and dead_acute is a dead key, which types the
+    // accent over the next letter. Arabic_switch, Prior and Next are the names
+    // Gtk.accelerator_name or a hand-written setting can give Mode_switch,
+    // Page_Up and Page_Down.
+    it.each([
+        ['Left', 0],
+        ['Up', 0],
+        ['Right', 0],
+        ['Down', 0],
+        ['Home', 0],
+        ['End', 0],
+        ['Page_Up', 0],
+        ['Prior', 0],
+        ['Page_Down', 0],
+        ['Next', 0],
+        ['Tab', 0x09],
+        ['ISO_Left_Tab', 0],
+        ['Return', 0x0d],
+        ['KP_Enter', 0],
+        ['Mode_switch', 0],
+        ['Arabic_switch', 0],
+        ['dead_acute', 0],
+        ['dead_grave', 0],
+        ['dead_hamza', 0],
+        ['0xfe90', 0],
+    ])(
+        'refuses Shift+%s, which applications need for editing text',
+        (key, codePoint) => {
+            expect(canBeShortcut(`<Shift>${key}`, codePoint)).toBe(false);
+        },
+    );
+
+    it('takes the same keys with a modifier other than Shift', () => {
+        expect(canBeShortcut('<Control>Left', 0)).toBe(true);
+        expect(canBeShortcut('<Super>Tab', code('\t'))).toBe(true);
     });
 
     it('takes any key with Ctrl, Alt or Super', () => {

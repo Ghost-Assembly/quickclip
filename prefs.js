@@ -123,7 +123,8 @@ function captureShortcut(window, onAccel) {
             return Gdk.EVENT_STOP;
         }
         // A lone modifier is not a shortcut yet; a bare key, or Shift with a
-        // letter, would swallow typing everywhere.
+        // letter, an arrow, Tab, Return or a dead key, would swallow typing
+        // everywhere (modules/accel.js's canBeShortcut decides).
         if (!Gtk.accelerator_valid(key, mods)) return Gdk.EVENT_STOP;
         const accel = Gtk.accelerator_name_with_keycode(null, key, keycode, mods);
         if (!canBeShortcut(accel, Gdk.keyval_to_unicode(key))) return Gdk.EVENT_STOP;

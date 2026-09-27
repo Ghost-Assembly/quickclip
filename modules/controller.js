@@ -65,6 +65,10 @@ export class QuickClip {
         this._popup = null;
         this._pasteTimer = null;
         this._pasteWarned = false;
+        // Keys already warned about, across every lock/unlock in this enable:
+        // Mutter answers the same refusal on every unlock, and a warning on
+        // each one would be noise for a name nothing here can free.
+        this._refusedWarned = new Set();
         this._bindings = [];
         this._locked = null;
         this._actions = this._createActions();
@@ -162,9 +166,12 @@ export class QuickClip {
                 Shell.ActionMode.NORMAL,
                 handler,
             );
-            if (action === Meta.KeyBindingAction.NONE)
-                console.warn(`[quickclip] could not bind ${key}`);
-            else this._bindings.push(key);
+            if (action === Meta.KeyBindingAction.NONE) {
+                if (!this._refusedWarned.has(key)) {
+                    this._refusedWarned.add(key);
+                    console.warn(`[quickclip] could not bind ${key}`);
+                }
+            } else this._bindings.push(key);
         };
         bind(KEYS.POPUP_SHORTCUT, () => this.openPopup());
         bind(KEYS.PAUSE_SHORTCUT, () =>

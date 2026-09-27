@@ -140,6 +140,20 @@ describe('QuickClip', () => {
         expect(Main.wm.bindings.size).toBe(0);
     });
 
+    it('warns only once per enable when the same shortcut keeps being refused', () => {
+        const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+        Main.refuse.add(KEYS.POPUP_SHORTCUT);
+        build();
+        expect(warn).toHaveBeenCalledTimes(1);
+
+        Main.lock(true);
+        Main.lock(false);
+        Main.lock(true);
+        Main.lock(false);
+
+        expect(warn).toHaveBeenCalledTimes(1);
+    });
+
     it('hides everything while locked, and clears by default', async () => {
         const { app, clip } = build();
         clip.copyText('before');

@@ -26,11 +26,19 @@ const SCAN_CHARS = PREVIEW_CHARS * 4;
 export const MATCH_CHARS = 10_000;
 
 /**
- * Put a value into a translated "%s" template. A function replacer keeps a
- * "$&" in the value from being read as a replacement pattern.
+ * Fill a translated template's "%s" and "%d" placeholders, in order. A
+ * function replacer keeps a "$&" in a value from being read as a replacement
+ * pattern, and each placeholder past the last value is left as it is.
+ *
+ * @param {string} template Text with zero or more "%s"/"%d" placeholders.
+ * @param {...*} values One value per placeholder, in order.
+ * @returns {string} The filled template.
  */
-export function fill(template, value) {
-    return template.replace('%s', () => value);
+export function fill(template, ...values) {
+    let next = 0;
+    return template.replace(/%[sd]/g, match =>
+        next < values.length ? String(values[next++]) : match,
+    );
 }
 
 /**

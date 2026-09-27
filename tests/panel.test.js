@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import * as Main from './stubs/shell-main.js';
 import { descendants, liveHandlers, resetActors } from './support/actors.js';
@@ -12,13 +12,13 @@ import { MB, createSettings, createTimers } from './support/world.js';
 const _ = message => message;
 const ngettext = (one, many, count) => (count === 1 ? one : many);
 
-function build(values = {}) {
+function build(values = {}, { transforms, expireMs = 0 } = {}) {
     const timers = createTimers();
     const settings = createSettings(values);
     const history = new History({
         size: 20,
         imageBudget: 32 * MB,
-        expireMs: 0,
+        expireMs,
         now: timers.now,
     });
     const calls = [];
@@ -35,12 +35,19 @@ function build(values = {}) {
         setPaused: record('setPaused'),
         transform: record('transform'),
         openPrefs: record('openPrefs'),
-        expire: record('expire'),
+        // Wired to the real History, as the controller wires it, so a test can
+        // prove an expired row is actually dropped, not just that the action
+        // fired.
+        expire: (...args) => {
+            calls.push(['expire', ...args]);
+            history.expire();
+        },
     };
     const panel = new Panel({
         settings,
         history,
-        transforms: createTransforms({ uuid: () => 'u', now: timers.now }),
+        transforms:
+            transforms ?? createTransforms({ uuid: () => 'u', now: timers.now }),
         actions,
         iconPath: '/icons/quickclip-symbolic.svg',
         gettext: _,
@@ -48,7 +55,7 @@ function build(values = {}) {
     });
     panel.enable();
     const toggle = Main.externalIndicators.at(-1).indicator.quickSettingsItems[0];
-    return { settings, history, panel, toggle, calls };
+    return { settings, history, panel, toggle, calls, timers };
 }
 
 const all = toggle => descendants(toggle.menu);
@@ -85,6 +92,7 @@ describe('Panel', () => {
         const { toggle, history, calls } = build();
         history.add({ kind: KIND.TEXT, text: 'older' });
         const newer = history.add({ kind: KIND.TEXT, text: 'newer' });
+        toggle.menu.open();
 
         const labels = all(toggle)
             .filter(actor => ['older', 'newer'].includes(actor.label?.text))
@@ -102,6 +110,7 @@ describe('Panel', () => {
         const { toggle, history, calls } = build();
         history.add({ kind: KIND.IMAGE, data: 'png', size: 2048, hash: 'h' });
         history.add({ kind: KIND.TEXT, text: 'keep me' });
+        toggle.menu.open();
 
         const textRow = all(toggle)
             .filter(actor => actor.label?.text === 'keep me')
@@ -118,6 +127,7 @@ describe('Panel', () => {
     it('offers no pin for text too long to keep in settings', () => {
         const { toggle, history } = build();
         history.add({ kind: KIND.TEXT, text: 'y'.repeat(MAX_TRANSFORM_CHARS + 1) });
+        toggle.menu.open();
         const row = all(toggle)
             .filter(actor => actor.label?.text?.startsWith('yyy'))
             .at(-1);
@@ -137,6 +147,7 @@ describe('Panel', () => {
     it('shows a blocked copy as a row that cannot be clicked', () => {
         const { toggle, history } = build();
         history.block(REASON.SENSITIVE);
+        toggle.menu.open();
         const row = rowWith(toggle, 'Sensitive copy skipped');
         expect(row).toBeDefined();
         expect(row.sensitive ?? row.reactive).toBe(false);
@@ -145,6 +156,7 @@ describe('Panel', () => {
     it('offers only the transforms that apply to the current item', () => {
         const { toggle, history, calls } = build();
         history.add({ kind: KIND.TEXT, text: '{"a":1}' });
+        toggle.menu.open();
 
         const pretty = rowWith(toggle, 'Pretty-print JSON');
         expect(pretty).toBeDefined();
@@ -156,6 +168,7 @@ describe('Panel', () => {
     it('shows markup literally on one line', () => {
         const { toggle, history } = build();
         history.add({ kind: KIND.TEXT, text: '<b>bold</b>\nnext' });
+        toggle.menu.open();
         const row = rowWith(toggle, '<b>bold</b> next');
         expect(row).toBeDefined();
         for (const actor of all(toggle))
@@ -165,10 +178,51 @@ describe('Panel', () => {
     it('reuses one thumbnail per image across rebuilds', () => {
         const { toggle, history } = build();
         history.add({ kind: KIND.IMAGE, data: 'png', size: 10, hash: 'h' });
+        toggle.menu.open();
         const first = all(toggle).find(actor => actor.gicon?.bytes === 'png').gicon;
         history.add({ kind: KIND.TEXT, text: 'x' });
+        toggle.menu.open();
         const second = all(toggle).find(actor => actor.gicon?.bytes === 'png').gicon;
         expect(second).toBe(first);
+    });
+
+    it('makes no transform decision and rebuilds nothing for a History change while closed', () => {
+        const applies = vi.fn(() => true);
+        const transform = {
+            id: 'fake',
+            label: 'Fake',
+            generator: false,
+            applies,
+            run: text => text,
+        };
+        const { toggle, history } = build({}, { transforms: [transform] });
+
+        history.add({ kind: KIND.TEXT, text: 'hello' });
+
+        expect(applies).not.toHaveBeenCalled();
+        expect(rowWith(toggle, 'hello')).toBeUndefined();
+        expect(rowWith(toggle, 'Nothing recorded yet')).toBeDefined();
+    });
+
+    it('shows the new rows, with expired ones dropped, on the same open', () => {
+        const { toggle, history, timers } = build({}, { expireMs: 1000 });
+        history.add({ kind: KIND.TEXT, text: 'old' });
+        timers.advance(2000);
+        history.add({ kind: KIND.TEXT, text: 'new' });
+
+        toggle.menu.open();
+
+        expect(rowWith(toggle, 'new')).toBeDefined();
+        expect(rowWith(toggle, 'old')).toBeUndefined();
+    });
+
+    it('still syncs a History change immediately while the menu is open', () => {
+        const { toggle, history } = build();
+        toggle.menu.open();
+
+        history.add({ kind: KIND.TEXT, text: 'hello' });
+
+        expect(rowWith(toggle, 'hello')).toBeDefined();
     });
 
     it('asks for expired copies to be dropped each time the menu opens', () => {

@@ -435,6 +435,7 @@ describe('QuickClip', () => {
         const { clip, timers } = build();
         clip.copyText('tile');
         await flush();
+        tile().menu.open();
         // The last match is the Recent row; the first is the Current row,
         // which is not clickable.
         const row = descendants(tile().menu)

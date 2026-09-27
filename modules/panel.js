@@ -95,15 +95,6 @@ const QuickClipToggle = GObject.registerClass(
                 () => this._actions?.setPaused(!this.checked),
                 this,
             );
-            // Expiry runs on a timer that stands still during a suspend, so
-            // the controller gets a chance to catch up before the menu shows.
-            this.menu.connectObject(
-                'open-state-changed',
-                (_menu, open) => {
-                    if (open) this._actions?.expire();
-                },
-                this,
-            );
             // A plain connect, as ButtonBox does: connectObject with this as its
             // own owner could be released by the destroy it is meant to handle.
             this.connect('destroy', () => this._onDestroy());
@@ -269,6 +260,20 @@ export class Panel {
             transforms: this._transforms,
         });
         this._toggle.connectObject('destroy', () => (this._toggle = null), this);
+
+        // Rebuilt right before the menu opens rather than from
+        // 'open-state-changed': Shell 50.3 measures the menu's height before
+        // it emits that signal, so a rebuild done from the signal always
+        // animates to a stale height. expire() runs first, ahead of the
+        // rebuild, so a row that just timed out is gone from this same
+        // rebuild instead of shown one open late.
+        const open = this._toggle.menu.open.bind(this._toggle.menu);
+        this._toggle.menu.open = animate => {
+            this._actions.expire();
+            this.sync();
+            open(animate);
+        };
+
         this._indicator = new QuickSettings.SystemIndicator();
         this._indicator.quickSettingsItems.push(this._toggle);
         Main.panel.statusArea.quickSettings.addExternalIndicator(this._indicator);
@@ -276,7 +281,13 @@ export class Panel {
         this._watcher = new SettingsWatcher(this._settings);
         this._watcher.watch(KEYS.PAUSED, () => this.sync());
         this._watcher.watch(KEYS.PINNED, () => this.sync());
-        this._unsubscribe = this._history.onChange(() => this.sync());
+        // A History change while the menu is open is shown right away, same
+        // as before; while closed, the wrapped open() above rebuilds it, so
+        // an idle Shell isn't running every transform's applicable() for
+        // every copy nobody is looking at.
+        this._unsubscribe = this._history.onChange(() => {
+            if (this._toggle?.menu.isOpen) this.sync();
+        });
         this.sync();
     }
 

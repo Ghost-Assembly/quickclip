@@ -56,9 +56,72 @@ export function normalizeAccel(accel) {
 }
 
 /**
- * Whether a captured combination may be a shortcut, as GNOME Settings rules
- * it: a bare key never, and Shift alone only with a key that types nothing,
- * such as F5 — Shift+A is how a capital A is typed.
+ * Keys Shift alone may not take, although none of them types a visible
+ * character: Shift with one of them selects text, moves focus or ends a line
+ * in every application.
+ *
+ * GNOME Settings' own list, forbidden_keyvals in is_valid_binding()
+ * (gnome-control-center, panels/keyboard/keyboard-shortcuts.c), by key name,
+ * plus ISO_Left_Tab, which is what GTK reports for Shift+Tab. A keyval can
+ * have several names: Gtk.accelerator_name writes Mode_switch as
+ * Arabic_switch, and Page_Up and Page_Down can be read back as Prior and
+ * Next, so every name Gdk 4 gives each of those keyvals is here.
+ */
+const SHIFT_FORBIDDEN_KEYS = new Set([
+    'Home',
+    'Left',
+    'Up',
+    'Right',
+    'Down',
+    'Page_Up',
+    'Prior',
+    'Page_Down',
+    'Next',
+    'End',
+    'Tab',
+    'ISO_Left_Tab',
+    'KP_Enter',
+    'Return',
+    'Mode_switch',
+    'Arabic_switch',
+    'Greek_switch',
+    'Hangul_switch',
+    'Hebrew_switch',
+    'ISO_Group_Shift',
+    'kana_switch',
+    'script_switch',
+]);
+
+/**
+ * Whether a key name is a dead key, which types nothing itself but puts an
+ * accent on the next letter typed.
+ *
+ * Every dead key Gdk can name is called dead_*. Gdk 4 has no name for the four
+ * at 0xfe90-0xfe93 (dead_lowline to dead_longsolidusoverlay), so
+ * Gtk.accelerator_name writes those as their keyval in hex.
+ *
+ * @param {string} key A key name from an accelerator.
+ * @returns {boolean} True for a dead key.
+ */
+function isDeadKey(key) {
+    return key.startsWith('dead_') || /^0xfe9[0-3]$/.test(key);
+}
+
+/**
+ * Whether a captured combination may be a shortcut.
+ *
+ * A bare key never may. Shift alone may only with a key that types no
+ * visible character and is not one that editing text needs
+ * (SHIFT_FORBIDDEN_KEYS) or a dead key: Shift+F5 may, Shift+A, Shift+Left and
+ * Shift+dead_acute may not. Any other modifier makes it bindable.
+ *
+ * Built on GNOME Settings' is_valid_binding() (gnome-control-center,
+ * panels/keyboard/keyboard-shortcuts.c), and differs in three ways: this
+ * refuses every bare key, where GNOME allows one such as F5; it refuses
+ * Shift with a dead key, which GNOME's list leaves out; and it judges what
+ * Shift alone types by whether the key's code point is a visible character,
+ * where GNOME checks per-script keyval ranges. QuickTiler and QuickTS apply the
+ * same rule to keyvals; this applies it to the key's name.
  *
  * @param {string} accel A GTK accelerator.
  * @param {number} codePoint The character its key types, as
@@ -70,7 +133,9 @@ export function canBeShortcut(accel, codePoint) {
     if (!parsed || !parsed.modifiers.size) return false;
     const shiftOnly = parsed.modifiers.size === 1 && parsed.modifiers.has('shift');
     if (!shiftOnly) return true;
-    // Control characters (Tab, Return, Delete) type nothing visible.
+    if (SHIFT_FORBIDDEN_KEYS.has(parsed.key) || isDeadKey(parsed.key)) return false;
+    // Control characters (Delete, and the function keys, which have no code
+    // point at all) type nothing visible.
     const prints = codePoint > 0 && !/\p{Cc}/u.test(String.fromCodePoint(codePoint));
     return !prints;
 }

@@ -68,8 +68,8 @@ Wayland, log out and back in.
 | Terminal apps          | Ptyxis, GNOME Console, GNOME Terminal, kitty, Alacritty, foot, WezTerm, Ghostty | Paste with Ctrl+Shift+V instead of Ctrl+V                          |
 | Pinned snippets        | none                                                                            | The only clipboard content stored on disk; kept until you unpin it |
 
-Recording is paused and resumed from the tile itself, not from this window; the
-state is remembered between sessions.
+Recording is paused and resumed from the tile or the pause shortcut, not from
+this window; the state is remembered between sessions.
 
 ## Development
 

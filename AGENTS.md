@@ -50,7 +50,8 @@ in CI or from this agent's sandbox.
 - **Keybinding names are prefixed.** The gschema keys are
   `quickclip-open-popup` and `quickclip-toggle-pause`, because Mutter keeps
   one table of keybinding names for the whole Shell and refuses a name
-  already claimed by another extension.
+  already claimed by another extension. v0.1.0 is tagged, so renaming these
+  keys now would need a settings migration, not a plain rename.
 - **`addKeybinding`'s return is honored.** A binding is recorded only when
   Mutter did not answer `Meta.KeyBindingAction.NONE`; a refused binding warns
   once per enable (`console.warn('[quickclip] could not bind <key>')`)

@@ -135,4 +135,16 @@ describe('fill', () => {
     it('does not read $ patterns in the value', () => {
         expect(fill('Open %s', '$&')).toBe('Open $&');
     });
+
+    it('fills every placeholder in order, %s and %d alike', () => {
+        expect(fill('%s of %d, again %s', 'a', 2, 'c')).toBe('a of 2, again c');
+    });
+
+    it('leaves a placeholder past the last value untouched', () => {
+        expect(fill('%s and %s', 'only')).toBe('only and %s');
+    });
+
+    it('does not let a later $ pattern read an earlier value', () => {
+        expect(fill('%s then %s', '$&', '$1')).toBe('$& then $1');
+    });
 });

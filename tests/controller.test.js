@@ -140,6 +140,20 @@ describe('QuickClip', () => {
         expect(Main.wm.bindings.size).toBe(0);
     });
 
+    it('warns only once per enable when the same shortcut keeps being refused', () => {
+        const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+        Main.refuse.add(KEYS.POPUP_SHORTCUT);
+        build();
+        expect(warn).toHaveBeenCalledTimes(1);
+
+        Main.lock(true);
+        Main.lock(false);
+        Main.lock(true);
+        Main.lock(false);
+
+        expect(warn).toHaveBeenCalledTimes(1);
+    });
+
     it('hides everything while locked, and clears by default', async () => {
         const { app, clip } = build();
         clip.copyText('before');
@@ -383,6 +397,27 @@ describe('QuickClip', () => {
         expect(Main.notifications[0].details).not.toContain('hunter2');
     });
 
+    it('keeps a %-holding label intact when a transform fails', async () => {
+        const { app, clip } = build();
+        const failing = {
+            id: 'split',
+            label: 'Split into %d parts',
+            generator: false,
+            applies: () => true,
+            run: () => {
+                throw new Error('boom');
+            },
+        };
+        clip.copyText('x');
+        await flush();
+
+        app._actions.transform(failing);
+
+        expect(Main.notifications[0].details).toBe(
+            'Split into %d parts did not apply — Could not transform this text',
+        );
+    });
+
     it('words a failed transform only in strings a translator is given', async () => {
         const asked = [];
         const gettext = message => (asked.push(message), message);
@@ -431,10 +466,28 @@ describe('QuickClip', () => {
         expect(settings.get_strv(KEYS.PINNED)).toEqual([]);
     });
 
+    it('copies text directly from the copyText action', () => {
+        const { app, clip } = build();
+        app._actions.copyText('direct');
+        expect(clip.writes).toEqual([['text', 'direct']]);
+    });
+
+    it('clears the history from the clear action', async () => {
+        const { app, clip } = build();
+        clip.copyText('to be cleared');
+        await flush();
+        expect(app._history.items).toHaveLength(1);
+
+        app._actions.clear();
+
+        expect(app._history.items).toEqual([]);
+    });
+
     it('copies from the tile without pasting', async () => {
         const { clip, timers } = build();
         clip.copyText('tile');
         await flush();
+        tile().menu.open();
         // The last match is the Recent row; the first is the Current row,
         // which is not clickable.
         const row = descendants(tile().menu)

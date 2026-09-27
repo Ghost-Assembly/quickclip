@@ -72,6 +72,10 @@ const QuickClipToggle = GObject.registerClass(
             // Item id -> icon: one Gio.BytesIcon per image, reused across
             // rebuilds instead of a new one each time.
             this._thumbs = new Map();
+            // Whether forgetHistory() has already run since the last sync():
+            // makes it a once-per-closed-period release rather than a no-op
+            // rebuild on every History change while the menu stays shut.
+            this._forgotten = false;
 
             this._current = new PopupMenu.PopupMenuSection();
             this._pinned = new PopupMenu.PopupMenuSection();
@@ -95,15 +99,6 @@ const QuickClipToggle = GObject.registerClass(
                 () => this._actions?.setPaused(!this.checked),
                 this,
             );
-            // Expiry runs on a timer that stands still during a suspend, so
-            // the controller gets a chance to catch up before the menu shows.
-            this.menu.connectObject(
-                'open-state-changed',
-                (_menu, open) => {
-                    if (open) this._actions?.expire();
-                },
-                this,
-            );
             // A plain connect, as ButtonBox does: connectObject with this as its
             // own owner could be released by the destroy it is meant to handle.
             this.connect('destroy', () => this._onDestroy());
@@ -115,6 +110,7 @@ const QuickClipToggle = GObject.registerClass(
          */
         sync({ items, current, blocked, pinned, paused }) {
             const _ = this._gettext;
+            this._forgotten = false;
             this.checked = !paused;
             this.subtitle = paused ? _('Paused') : _('Recording');
             this.menu.setHeader(
@@ -133,6 +129,24 @@ const QuickClipToggle = GObject.registerClass(
             const live = new Set(items.map(item => item.id));
             for (const id of [...this._thumbs.keys()])
                 if (!live.has(id)) this._thumbs.delete(id);
+        }
+
+        /**
+         * Release what the closed menu's rows hold onto — their labels, their
+         * activate/Pin closures over an item, and the image thumbnails (a
+         * Gio.BytesIcon holds the GLib.Bytes, and so does _thumbs) — without
+         * rebuilding. Called while the menu is closed and History changes, so
+         * a copy History has already dropped is not kept alive by this menu
+         * until the next open. Idempotent per closed period: sync() clears
+         * the flag for the next one, so this does the release once rather
+         * than on every change while nobody can see the menu anyway.
+         */
+        forgetHistory() {
+            if (this._forgotten) return;
+            this._forgotten = true;
+            this._current.removeAll();
+            this._recent.removeAll();
+            this._thumbs.clear();
         }
 
         _thumb(item) {
@@ -269,6 +283,24 @@ export class Panel {
             transforms: this._transforms,
         });
         this._toggle.connectObject('destroy', () => (this._toggle = null), this);
+
+        // Rebuilt right before the menu opens rather than from
+        // 'open-state-changed': Shell 50.3 measures the menu's height before
+        // it emits that signal, so a rebuild done from the signal always
+        // animates to a stale height. expire() runs first, ahead of the
+        // rebuild, so a row that just timed out is gone from this same
+        // rebuild instead of shown one open late. Skipped when the menu is
+        // already open, as QuickRem's wrapper does, since open() can be
+        // called on an already-open menu.
+        const open = this._toggle.menu.open.bind(this._toggle.menu);
+        this._toggle.menu.open = animate => {
+            if (!this._toggle.menu.isOpen) {
+                this._actions.expire();
+                this.sync();
+            }
+            open(animate);
+        };
+
         this._indicator = new QuickSettings.SystemIndicator();
         this._indicator.quickSettingsItems.push(this._toggle);
         Main.panel.statusArea.quickSettings.addExternalIndicator(this._indicator);
@@ -276,7 +308,16 @@ export class Panel {
         this._watcher = new SettingsWatcher(this._settings);
         this._watcher.watch(KEYS.PAUSED, () => this.sync());
         this._watcher.watch(KEYS.PINNED, () => this.sync());
-        this._unsubscribe = this._history.onChange(() => this.sync());
+        // A History change while the menu is open is shown right away, same
+        // as before; while closed, the wrapped open() above rebuilds it, so
+        // an idle Shell isn't running every transform's applicable() for
+        // every copy nobody is looking at. forgetHistory() still releases
+        // the closed menu's current rows once, so a dropped copy's text,
+        // closures and thumbnail are not kept alive until the next open.
+        this._unsubscribe = this._history.onChange(() => {
+            if (this._toggle?.menu.isOpen) this.sync();
+            else this._toggle?.forgetHistory();
+        });
         this.sync();
     }
 

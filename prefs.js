@@ -17,7 +17,7 @@ import {
 } from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
 
 import { canBeShortcut, findConflicts } from './modules/accel.js';
-import { pinnable } from './modules/listing.js';
+import { fill, pinnable } from './modules/listing.js';
 import { KEYS, SETTINGS } from './modules/settings.js';
 
 /** Schemas whose `as` keys are keyboard shortcuts GNOME itself owns. */
@@ -34,11 +34,6 @@ const CUSTOM_KEYBINDING =
 
 function describe(key) {
     return SETTINGS.find(setting => setting.key === key);
-}
-
-/** Fill "%s" placeholders in order, without reading "$" patterns. */
-function format(template, ...values) {
-    return values.reduce((text, value) => text.replace('%s', () => value), template);
 }
 
 /**
@@ -178,7 +173,7 @@ function shortcutRow(window, settings, key) {
                     // accelerator has "<" and ">", and conflict.source can be
                     // a user-typed custom shortcut name.
                     new Adw.Toast({
-                        title: format(
+                        title: fill(
                             _('%s is already used by %s'),
                             accel,
                             conflict.source,

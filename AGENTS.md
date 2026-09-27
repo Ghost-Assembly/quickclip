@@ -48,15 +48,14 @@ in CI or from this agent's sandbox.
   extension's identity to GNOME and to extensions.gnome.org; everything else
   is derived from `metadata.json`.
 - **Keybinding names are prefixed.** The gschema keys are
-  `quickclip-open-popup` and `quickclip-toggle-pause`, not a bare name like
-  `popup-shortcut` — an unprefixed key can collide with another extension's
-  own settings inside the same process. This repository is unreleased, so
-  the rename cost nothing; a released extension would need a settings
-  migration first.
+  `quickclip-open-popup` and `quickclip-toggle-pause`, because Mutter keeps
+  one table of keybinding names for the whole Shell and refuses a name
+  already claimed by another extension. v0.1.0 is tagged, so renaming these
+  keys now would need a settings migration, not a plain rename.
 - **`addKeybinding`'s return is honored.** A binding is recorded only when
   Mutter did not answer `Meta.KeyBindingAction.NONE`; a refused binding warns
-  once (`console.warn('[quickclip] could not bind <key>')`) instead of
-  pretending it took.
+  once per enable (`console.warn('[quickclip] could not bind <key>')`)
+  instead of pretending it took.
 - **`Meta.KeyBindingFlags.IGNORE_AUTOREPEAT` on both shortcuts.** A held key
   must not repeat-fire an action.
 - **While the screen is locked there is no tile, no popup, no keybinding and

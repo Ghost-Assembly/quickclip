@@ -90,6 +90,18 @@ describe('Recorder', () => {
         expect(history.items).toEqual([]);
     });
 
+    it('records nothing and logs when reading the clipboard fails', async () => {
+        const { clip, history } = build();
+        vi.spyOn(clip, 'readText').mockRejectedValue(new Error('boom'));
+        clip.copyText('will fail to read');
+        await flush();
+
+        expect(history.items).toEqual([]);
+        expect(console.debug).toHaveBeenCalledWith(
+            '[quickclip] could not read the clipboard',
+        );
+    });
+
     it('records images, and refuses one bigger than the budget', async () => {
         const { clip, history } = build({ [KEYS.IMAGE_BUDGET_MB]: 1 });
         clip.copyImage({ data: 'png', size: 1000, hash: 'h1' });

@@ -445,6 +445,23 @@ describe('QuickClip', () => {
         expect(settings.get_strv(KEYS.PINNED)).toEqual([]);
     });
 
+    it('copies text directly from the copyText action', () => {
+        const { app, clip } = build();
+        app._actions.copyText('direct');
+        expect(clip.writes).toEqual([['text', 'direct']]);
+    });
+
+    it('clears the history from the clear action', async () => {
+        const { app, clip } = build();
+        clip.copyText('to be cleared');
+        await flush();
+        expect(app._history.items).toHaveLength(1);
+
+        app._actions.clear();
+
+        expect(app._history.items).toEqual([]);
+    });
+
     it('copies from the tile without pasting', async () => {
         const { clip, timers } = build();
         clip.copyText('tile');

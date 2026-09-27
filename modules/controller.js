@@ -241,19 +241,20 @@ export class QuickClip {
             if (!(error instanceof TransformError)) throw error;
             // Fixed wording only: a notification can outlive the copy and show
             // on the lock screen. One msgid holds the whole sentence; fill()
-            // replaces each %s in call order, not by its position in a
-            // translation, so the first fill() below always becomes the label
-            // and the second always becomes the reason — a translator can
+            // fills both %s in one pass over the template, in order, so the
+            // label always lands in the first and the reason in the second
+            // regardless of what either value contains — a translator can
             // reword around the two %s but not swap which value lands in
-            // which one. The label and the reason are marked with N_ in
-            // transforms.js, which is how xgettext finds them.
+            // which one. A second, nested fill() call used to fill the label
+            // first and the reason second as two separate passes, so a label
+            // that itself contained "%s" or "%d" (a generator's label can)
+            // was read as the reason's placeholder on the second pass. The
+            // label and the reason are marked with N_ in transforms.js, which
+            // is how xgettext finds them.
             Main.notify(
                 'QuickClip',
-                fill(
-                    // Translators: %s %s — the transform's label, then why it failed.
-                    fill(_('%s did not apply — %s'), _(transform.label)),
-                    _(error.message),
-                ),
+                // Translators: %s %s — the transform's label, then why it failed.
+                fill(_('%s did not apply — %s'), _(transform.label), _(error.message)),
             );
             return false;
         }

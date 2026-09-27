@@ -397,6 +397,27 @@ describe('QuickClip', () => {
         expect(Main.notifications[0].details).not.toContain('hunter2');
     });
 
+    it('keeps a %-holding label intact when a transform fails', async () => {
+        const { app, clip } = build();
+        const failing = {
+            id: 'split',
+            label: 'Split into %d parts',
+            generator: false,
+            applies: () => true,
+            run: () => {
+                throw new Error('boom');
+            },
+        };
+        clip.copyText('x');
+        await flush();
+
+        app._actions.transform(failing);
+
+        expect(Main.notifications[0].details).toBe(
+            'Split into %d parts did not apply — Could not transform this text',
+        );
+    });
+
     it('words a failed transform only in strings a translator is given', async () => {
         const asked = [];
         const gettext = message => (asked.push(message), message);

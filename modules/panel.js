@@ -289,11 +289,15 @@ export class Panel {
         // it emits that signal, so a rebuild done from the signal always
         // animates to a stale height. expire() runs first, ahead of the
         // rebuild, so a row that just timed out is gone from this same
-        // rebuild instead of shown one open late.
+        // rebuild instead of shown one open late. Skipped when the menu is
+        // already open, as QuickRem's wrapper does, since open() can be
+        // called on an already-open menu.
         const open = this._toggle.menu.open.bind(this._toggle.menu);
         this._toggle.menu.open = animate => {
-            this._actions.expire();
-            this.sync();
+            if (!this._toggle.menu.isOpen) {
+                this._actions.expire();
+                this.sync();
+            }
             open(animate);
         };
 

@@ -62,12 +62,14 @@ Wayland, log out and back in.
 | Expire after (minutes) | 30                                                                              | 0–1440; 0 keeps a copy until it is pushed out by History size      |
 | Clear on lock          | on                                                                              | Empty the history when the screen locks                            |
 | Paste on select        | on                                                                              | Paste the chosen item into the window that had focus               |
-| Recording paused       | off                                                                             | Toggled from the tile; not usually set here                        |
 | Open the popup         | Super+Shift+V                                                                   | A conflicting shortcut is refused, never overwritten               |
 | Pause or resume        | not set                                                                         | Same conflict check as the popup shortcut                          |
 | Ignored apps           | none                                                                            | Copies made while one of these is focused are skipped              |
 | Terminal apps          | Ptyxis, GNOME Console, GNOME Terminal, kitty, Alacritty, foot, WezTerm, Ghostty | Paste with Ctrl+Shift+V instead of Ctrl+V                          |
 | Pinned snippets        | none                                                                            | The only clipboard content stored on disk; kept until you unpin it |
+
+Recording is paused and resumed from the tile itself, not from this window; the
+state is remembered between sessions.
 
 ## Development
 

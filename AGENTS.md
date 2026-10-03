@@ -31,7 +31,7 @@ Run `just ci` before claiming a change works.
 | `just template-check`                                                  | Compare managed files with the immutable GitHub revision in `quick-template.lock.json`          |
 | `just template-sync SHA`                                               | Synchronize a reviewed canonical revision; then install dependencies and regenerate docs        |
 | `just test`                                                            | Run Vitest, Python tooling tests, and project offline integration tests                         |
-| `just coverage`                                                        | Measure all runtime JavaScript, including untested files                                        |
+| `just coverage`                                                        | Measure runtime JavaScript and Python tooling, including untested files                         |
 | `just test-docs`                                                       | Check docs in Chromium and Firefox, including axe accessibility audits                          |
 | `just security`                                                        | Run OSV, source and history secret scans, Trivy, actionlint, and Zizmor                         |
 | `just build`                                                           | Build a deterministic runtime-only ZIP with Python's standard library                           |
@@ -98,7 +98,7 @@ Complete the manual checklist and test each declared GNOME version before releas
   assertions, then `scripts/build.py --check` diffs the built zip against
   `gnome-extensions pack`), `just test-docs` (Playwright + axe over
   `docs/index.html`).
-- `just coverage` measures all runtime JavaScript, including untested files.
+- `just coverage` measures runtime JavaScript and Python tooling, including untested files.
   Test stubs and generated reports are not runtime source.
 - The docs' Testing section also has a manual checklist for what a headless
   Shell cannot exercise: a real password-manager copy, a real screen lock.
@@ -127,7 +127,7 @@ Complete the manual checklist and test each declared GNOME version before releas
   `tests/site.spec.js`), the org profile
   (`Ghost-Assembly/.github`'s `profile/README.md`), and this repository's
   GitHub "About" description. Change one, change all five.
-- Template sync: this repository shares about 25 files, byte for byte, with
+- Template sync: this repository shares 33 managed files, with
   the other `quick*` extensions — see "Template files" below.
 
 ## Template files

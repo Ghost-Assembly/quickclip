@@ -161,6 +161,7 @@ const QuickClipToggle = GObject.registerClass(
                     new St.Icon({
                         gicon: this._thumb(item),
                         style_class: 'quickclip-thumb',
+                        icon_size: 48,
                     }),
                     1,
                 );

@@ -137,6 +137,7 @@ export const ClipPopup = GObject.registerClass(
                     new St.Icon({
                         gicon: new Gio.BytesIcon({ bytes: item.data }),
                         style_class: 'quickclip-thumb',
+                        icon_size: 48,
                     }),
                 );
             if (entry.row?.pinned)

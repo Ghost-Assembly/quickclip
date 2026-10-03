@@ -1,6 +1,3 @@
-import { readFileSync } from 'node:fs';
-import { fileURLToPath } from 'node:url';
-
 import { describe, expect, it } from 'vitest';
 
 import {
@@ -13,13 +10,8 @@ import {
 } from '../modules/settings.js';
 import { createSettings, MB } from './support/world.js';
 
-const read = relative =>
-    // Module-relative constants resolved from import.meta.url, not input.
-    // eslint-disable-next-line security/detect-non-literal-fs-filename
-    readFileSync(fileURLToPath(new URL(relative, import.meta.url)), 'utf8');
-
-const xml = read('../schemas/org.gnome.shell.extensions.quickclip.gschema.xml');
-const metadata = JSON.parse(read('../metadata.json'));
+import xml from '../schemas/org.gnome.shell.extensions.quickclip.gschema.xml?raw';
+import metadata from '../metadata.json' with { type: 'json' };
 
 /** Key name -> declared type, straight out of the gschema. */
 const declared = new Map(
@@ -31,8 +23,10 @@ const declared = new Map(
 
 /** The <default> of one key, as written. */
 function defaultOf(key) {
-    const block = new RegExp(`name="${key}">[\\s\\S]*?<default>([\\s\\S]*?)</default>`);
-    return block.exec(xml)[1];
+    const block = [...xml.matchAll(/<key\b[\s\S]*?<\/key>/g)].find(match =>
+        match[0].includes(`name="${key}"`),
+    );
+    return /<default>([\s\S]*?)<\/default>/.exec(block[0])[1];
 }
 
 describe('the settings list and the gschema', () => {

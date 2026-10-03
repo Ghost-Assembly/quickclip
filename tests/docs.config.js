@@ -10,6 +10,7 @@ export default {
     sections: [
         ['overview', 'Overview'],
         ['install', 'Install'],
+        ['uninstall', 'Uninstall'],
         ['privacy', 'Privacy'],
         ['transforms', 'Transforms'],
         ['preferences', 'Preferences'],

@@ -1,0 +1,26 @@
+{
+  "$schema": "quick-project.schema.json",
+  "runtimeFiles": [
+    "metadata.json",
+    "extension.js",
+    "prefs.js",
+    "LICENSE",
+    "modules/accel.js",
+    "modules/clipboard.js",
+    "modules/controller.js",
+    "modules/listing.js",
+    "modules/model.js",
+    "modules/panel.js",
+    "modules/paste.js",
+    "modules/popup.js",
+    "modules/privacy.js",
+    "modules/recorder.js",
+    "modules/settings.js",
+    "modules/transforms.js",
+    "schemas/org.gnome.shell.extensions.quickclip.gschema.xml",
+    "icons/quickclip-symbolic.svg",
+    "stylesheet.css"
+  ],
+  "docsPort": 8321,
+  "nativeTests": false
+}

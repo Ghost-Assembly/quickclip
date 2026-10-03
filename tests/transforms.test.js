@@ -120,6 +120,23 @@ describe('cleanup and case', () => {
 });
 
 describe('time', () => {
+    it('accepts supported clock precision and rejects malformed suffixes', () => {
+        for (const value of [
+            '2025-09-25T12:00Z',
+            '2025-09-25 12:00:00.123+00:00',
+            ' 2025-09-25T14:00:00+0200 ',
+        ]) {
+            expect(run('iso-to-epoch', value)).toBe('1758801600');
+        }
+        for (const value of [
+            '2025-09-25T12:00:00Zjunk',
+            '2025-09-25T12:00:00.' + '1'.repeat(10000) + 'junk',
+            '2025-09-25T12:00 extra',
+        ]) {
+            expect(() => run('iso-to-epoch', value)).toThrow('Not an ISO date');
+        }
+    });
+
     it('converts Unix seconds and milliseconds to ISO', () => {
         expect(run('epoch-to-iso', '1758801600')).toBe('2025-09-25T12:00:00.000Z');
         expect(run('epoch-to-iso', ' 1758801600123 ')).toBe('2025-09-25T12:00:00.123Z');

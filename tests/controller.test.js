@@ -1,6 +1,3 @@
-import { readdirSync, readFileSync } from 'node:fs';
-import { fileURLToPath } from 'node:url';
-
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import Clutter, { virtualSeat } from './stubs/gi-clutter.js';
@@ -25,15 +22,14 @@ import {
  * template or a concatenation there is invisible to it.
  */
 function extractableMsgids() {
-    const dir = fileURLToPath(new URL('../modules/', import.meta.url));
     const call = /(?<![\w.$])N?_\(\s*'((?:[^'\\]|\\.)*)'\s*[,)]/g;
     const ids = new Set();
-    // A module-relative constant directory and the files in it, not input.
-    // eslint-disable-next-line security/detect-non-literal-fs-filename
-    const files = readdirSync(dir).filter(name => name.endsWith('.js'));
-    for (const file of files) {
-        // eslint-disable-next-line security/detect-non-literal-fs-filename
-        const source = readFileSync(dir + file, 'utf8');
+    const sources = import.meta.glob('../modules/*.js', {
+        eager: true,
+        query: '?raw',
+        import: 'default',
+    });
+    for (const source of Object.values(sources)) {
         for (const match of source.matchAll(call)) ids.add(match[1]);
     }
     return ids;

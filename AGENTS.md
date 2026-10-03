@@ -6,41 +6,45 @@ README.md says what QuickClip does and how to install it.
 
 ## What gets published
 
-- Artifact: `quickclip@napalm255.github.io.shell-extension.zip`, built by
-  `just build` and attached to a GitHub release by `release.yml` when a `v*`
-  tag lands on `main`. The tag must agree with both `metadata.json`'s
-  `version-name` and `package.json`'s `version`, or the workflow refuses it.
-- Docs: `https://ghost-assembly.com/quickclip/`, published from this
-  repository's own GitHub Pages (`main:/docs`).
+- `just build` produces `quickclip@napalm255.github.io.shell-extension.zip`.
+  A `vX.Y.Z` tag triggers `.github/workflows/release.yml`, which verifies
+  version agreement, main ancestry, and successful CI for the exact commit,
+  then publishes that tested artifact without rebuilding it.
+- Docs at https://ghost-assembly.com/quickclip/ are deployed by the Pages
+  workflow from the tested `docs/` artifact after all required checks pass on main.
+- GNOME Extension Store submission and review remain manual.
 - The uuid, `quickclip@napalm255.github.io`, is written down once in
   `metadata.json`; the justfile and `scripts/*.sh` all derive it from there.
   Never spell it out a second place.
 
 ## Commands
 
-Tool versions live in `mise.toml`; commands live in the shared `justfile`
-(see "Template files" below — this project has no `project.just`).
+Tool versions live in `mise.toml`; common commands live in the canonical
+`justfile`; project-specific commands and hooks live in `project.just`.
+Run `just ci` before claiming a change works.
 
-| Command                                                  | Does                                                                                                                                                |
-| -------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `just setup`                                             | mise install, npm ci, Playwright's Chromium and Firefox; checks for gjs, glib-compile-schemas, gnome-shell, gnome-extensions, rsync, zip, unzip, jq |
-| `just fmt`                                               | prettier --write, eslint --fix                                                                                                                      |
-| `just lint`                                              | template-check, eslint, prettier --check, gschema strict dry-run, shellcheck                                                                        |
-| `just template-check [--write]`                          | Checks the shared files against `template.sha256`; `--write` regenerates it                                                                         |
-| `just test`                                              | Unit suite on plain Node (Vitest)                                                                                                                   |
-| `just test-docs`                                         | The docs site in Chromium and Firefox: accessibility, layout, no JavaScript                                                                         |
-| `just coverage`                                          | Unit suite with a coverage report                                                                                                                   |
-| `just test-live`                                         | Needs a real Shell: `scripts/headless-check.sh`, then `scripts/pack-check.sh`                                                                       |
-| `just pack-check`                                        | Diffs the built zip against `gnome-extensions pack`'s own listing                                                                                   |
-| `just build`                                             | Produces the installable zip                                                                                                                        |
-| `just run`                                               | A Shell in a window, via mutter-devkit                                                                                                              |
-| `just install` / `enable` / `disable` / `prefs` / `logs` | The local dev loop against a real session                                                                                                           |
-| `just security`                                          | osv-scanner, gitleaks, trivy, actionlint, zizmor                                                                                                    |
-| `just ci`                                                | Everything CI runs: lint, test, test-docs, security, build                                                                                          |
+| Command                                                                | Does                                                                                            |
+| ---------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| `just setup`                                                           | Install pinned tools, npm development dependencies, and Chromium/Firefox; check host tools      |
+| `just fmt`                                                             | Format JavaScript, Python, configuration, and generated documentation                           |
+| `just lint`                                                            | Verify canonical files, generated docs, ESLint, Prettier, Ruff, schemas, and shell scripts      |
+| `just template-check`                                                  | Compare managed files with the immutable GitHub revision in `quick-template.lock.json`          |
+| `just template-sync SHA`                                               | Synchronize a reviewed canonical revision; then install dependencies and regenerate docs        |
+| `just test`                                                            | Run Vitest, Python tooling tests, and project offline integration tests                         |
+| `just coverage`                                                        | Measure all runtime JavaScript, including untested files                                        |
+| `just test-docs`                                                       | Check docs in Chromium and Firefox, including axe accessibility audits                          |
+| `just security`                                                        | Run OSV, source and history secret scans, Trivy, actionlint, and Zizmor                         |
+| `just build`                                                           | Build a deterministic runtime-only ZIP with Python's standard library                           |
+| `just pack-check`                                                      | Compare every ZIP filename and byte with GNOME's official packer; validate icons                |
+| `just test-live`                                                       | Check packaging, then isolated GNOME lifecycle and project integration hooks                    |
+| `just run`                                                             | Run GNOME Shell in a development window                                                         |
+| `just install` / `enable` / `disable` / `uninstall` / `prefs` / `logs` | Work with the extension in your logged-in session                                               |
+| `just docs`                                                            | Serve the static site at localhost:8000                                                         |
+| `just ci`                                                              | Run lint, tests, coverage, docs, security, and packaging; GitHub also requires CodeQL and Sonar |
+| `just clean`                                                           | Confirm before removing generated build and test output                                         |
 
-Run `just ci` before claiming a change works. `just test-live` and the manual
-checklist in the docs' Testing section need a real GNOME Shell and cannot run
-in CI or from this agent's sandbox.
+Live checks require an installed GNOME Shell and run outside hosted CI.
+Complete the manual checklist and test each declared GNOME version before releasing.
 
 ## Hard constraints
 
@@ -91,13 +95,11 @@ in CI or from this agent's sandbox.
   and `tests/support/`), `just test-live` (`scripts/headless-check.sh` boots
   a real headless gnome-shell and checks enable/disable/enable with no
   leaked signal or timeout source, plus this project's own wl-copy
-  assertions, then `scripts/pack-check.sh` diffs the built zip against
+  assertions, then `scripts/build.py --check` diffs the built zip against
   `gnome-extensions pack`), `just test-docs` (Playwright + axe over
   `docs/index.html`).
-- `just coverage` excludes `prefs.js` and `modules/clipboard.js` — both
-  toolkit plumbing a unit test could only assert against a stub of the
-  toolkit — kept identical to `sonar.coverage.exclusions` in
-  `sonar-project.properties`.
+- `just coverage` measures all runtime JavaScript, including untested files.
+  Test stubs and generated reports are not runtime source.
 - The docs' Testing section also has a manual checklist for what a headless
   Shell cannot exercise: a real password-manager copy, a real screen lock.
 
@@ -130,23 +132,19 @@ in CI or from this agent's sandbox.
 
 ## Template files
 
-- `template.list` names every shared path; `template.sha256` is its checksum
-  manifest. `just template-check` (part of `just lint`) fails if a listed
-  file has drifted; `just template-check --write` regenerates the manifest
-  after a deliberate change.
-- **A file in `template.list` must be changed in all five `quick*`
-  repositories at once, then `just template-check --write` run in each.** Do
-  not edit one in isolation.
-- Project-specific styling goes in `docs/project.css` (loaded after the
-  shared `docs/style.css`), never in `docs/style.css` itself.
-  Project-specific `just` recipes would go in `project.just`
-  (`import? 'project.just'` at the bottom of the shared `justfile`); this
-  project does not currently need one.
-- `scripts/headless-check.sh` is not in `template.list`. It is a recommended
-  shared frame — the comment at its own top says so — that every extension
-  is expected to keep in step by hand, with a marked per-repo block holding
-  this project's own assertions (the wl-copy checks, the
-  "no virtual keyboard" check).
+`quick-template.lock.json` pins a full commit SHA from
+`Ghost-Assembly/quick-template`. `just template-check` compares managed files
+with that immutable GitHub archive; a local manifest cannot approve drift.
+Change shared tooling in the canonical repository, then run
+`just template-sync SHA`, `npm ci --ignore-scripts`, `just docs-generate`, and
+`just ci` in this checkout. The weekly freshness check reports newer approved
+releases without adopting them automatically.
+
+Project hooks belong in `project.just`, runtime packaging inputs in
+`quick-project.json`, documentation identity in `docs/project.json`, and local
+styling in `docs/project.css`. Common README and site sections are generated;
+keep extension-specific content outside their markers. Lifecycle test scripts
+remain specific to the extension.
 
 ## Settings keys
 

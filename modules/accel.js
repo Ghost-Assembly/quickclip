@@ -50,7 +50,9 @@ export function normalizeAccel(accel) {
     const parsed = parseAccel(accel);
     if (!parsed) return '';
     return [
-        ...[...parsed.modifiers].sort().map(modifier => `<${modifier}>`),
+        ...[...parsed.modifiers]
+            .sort((a, b) => a.localeCompare(b))
+            .map(modifier => `<${modifier}>`),
         parsed.key.toLowerCase(),
     ].join('');
 }

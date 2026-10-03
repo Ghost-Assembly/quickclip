@@ -74,7 +74,7 @@ export function base64Decode(text) {
     const bytes = [];
     let buffer = 0;
     let bits = 0;
-    for (const char of clean.replace(/=+$/, '')) {
+    for (const char of clean.split('=', 1)[0]) {
         buffer = ((buffer << 6) | B64.indexOf(char)) & 0xffffff;
         bits += 6;
         if (bits >= 8) {
@@ -154,8 +154,17 @@ function caseApplies(convert) {
 }
 
 const EPOCH = /^\s*(\d{10}|\d{13})\s*$/;
-const ISO =
-    /^\s*\d{4}-\d{2}-\d{2}(?:[T ]\d{2}:\d{2}(?::\d{2}(?:\.\d+)?)?(?:Z|[+-]\d{2}:?\d{2})?)?\s*$/;
+function isIsoDate(text) {
+    const [date, time, ...extra] = text.trim().split(/[T ]/);
+    if (extra.length || !/^\d{4}-\d{2}-\d{2}$/.test(date)) return false;
+    if (time === undefined) return true;
+    const clock = time.replace(/(?:Z|[+-]\d{2}:?\d{2})$/, '');
+    return (
+        /^\d{2}:\d{2}$/.test(clock) ||
+        /^\d{2}:\d{2}:\d{2}$/.test(clock) ||
+        /^\d{2}:\d{2}:\d{2}\.\d+$/.test(clock)
+    );
+}
 
 function epochToIso(text) {
     const match = EPOCH.exec(text);
@@ -166,7 +175,7 @@ function epochToIso(text) {
 }
 
 function isoToEpoch(text) {
-    const ms = ISO.test(text) ? Date.parse(text.trim()) : Number.NaN;
+    const ms = isIsoDate(text) ? Date.parse(text.trim()) : Number.NaN;
     if (!Number.isFinite(ms)) throw new TransformError(N_('Not an ISO date'));
     return String(Math.floor(ms / 1000));
 }
@@ -245,7 +254,7 @@ export function createTransforms({ uuid, now }) {
         define(
             'iso-to-epoch',
             N_('ISO date → Unix time'),
-            text => ISO.test(text) && Number.isFinite(Date.parse(text.trim())),
+            text => isIsoDate(text) && Number.isFinite(Date.parse(text.trim())),
             isoToEpoch,
         ),
         generate('uuid', N_('New UUID'), () => uuid()),

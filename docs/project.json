@@ -1,0 +1,5 @@
+{
+  "$schema": "project.schema.json",
+  "repository": "quickclip",
+  "requirements": "For automatic sensitive-copy filtering, use a password manager that sets x-kde-passwordManagerHint. Configure ignored apps when that hint is unavailable."
+}

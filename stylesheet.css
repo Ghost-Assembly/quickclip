@@ -5,14 +5,6 @@
  * popup-menu-item states.
  */
 
-.quickclip-current {
-    spacing: 12px;
-}
-
-.quickclip-thumb {
-    icon-size: 48px;
-}
-
 .quickclip-blocked {
     font-style: italic;
 }
@@ -22,14 +14,18 @@
 }
 
 .quickclip-popup-box {
-    spacing: 12px;
     min-width: 480px;
+}
+
+.quickclip-popup-box > :first-child {
+    margin-bottom: 12px;
 }
 
 .quickclip-scroll {
     max-height: 420px;
 }
 
-.quickclip-row-box {
-    spacing: 12px;
+/* Menu rows inherit Shell theme spacing; standalone rows use child margins. */
+.quickclip-row-box > * {
+    margin: 0 6px;
 }

@@ -7,5 +7,5 @@
   "url": "https://github.com/Ghost-Assembly/quickclip",
   "settings-schema": "org.gnome.shell.extensions.quickclip",
   "gettext-domain": "quickclip",
-  "version-name": "0.1.1"
+  "version-name": "0.1.2"
 }

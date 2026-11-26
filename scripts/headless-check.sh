@@ -15,7 +15,7 @@
 # that carries a password-manager MIME hint, "[quickclip] skipped sensitive".
 #
 # This needs a real gnome-shell and so runs locally only; GitHub's runners have
-# no GNOME 50.
+# no GNOME Shell.
 #
 # Project-specific lifecycle checks, called through project.just.
 # Keep common lifecycle assertions consistent across the extensions;

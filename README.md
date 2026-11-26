@@ -7,7 +7,7 @@
 [![Docs](https://img.shields.io/website?url=https%3A%2F%2Fghost-assembly.com%2Fquickclip%2F&label=docs)](https://ghost-assembly.com/quickclip/)
 [![Release](https://img.shields.io/github/v/release/Ghost-Assembly/quickclip)](https://github.com/Ghost-Assembly/quickclip/releases/latest)
 [![License](https://img.shields.io/github/license/Ghost-Assembly/quickclip)](https://github.com/Ghost-Assembly/quickclip/blob/main/LICENSE)
-[![GNOME](https://img.shields.io/badge/GNOME-50-blue)](https://ghost-assembly.com/quickclip/#install)
+[![GNOME](https://img.shields.io/badge/GNOME-50%20%7C%2051-blue)](https://ghost-assembly.com/quickclip/#install)
 [![Security issues](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fsonarcloud.io%2Fapi%2Fmeasures%2Fcomponent%3Fcomponent%3DGhost-Assembly_quickclip%26metricKeys%3Dsoftware_quality_security_issues&query=%24.component.measures%5B0%5D.value&label=Security+issues)](https://sonarcloud.io/dashboard?id=Ghost-Assembly_quickclip)
 [![Reliability issues](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fsonarcloud.io%2Fapi%2Fmeasures%2Fcomponent%3Fcomponent%3DGhost-Assembly_quickclip%26metricKeys%3Dsoftware_quality_reliability_issues&query=%24.component.measures%5B0%5D.value&label=Reliability+issues)](https://sonarcloud.io/dashboard?id=Ghost-Assembly_quickclip)
 [![Maintainability issues](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fsonarcloud.io%2Fapi%2Fmeasures%2Fcomponent%3Fcomponent%3DGhost-Assembly_quickclip%26metricKeys%3Dsoftware_quality_maintainability_issues&query=%24.component.measures%5B0%5D.value&label=Maintainability+issues)](https://sonarcloud.io/dashboard?id=Ghost-Assembly_quickclip)
@@ -45,7 +45,7 @@ architecture, testing, packaging and releasing.
 
 ## Requires
 
-- GNOME Shell 50
+- GNOME Shell 50 or 51
 - A password manager that sets `x-kde-passwordManagerHint` on what it copies,
   for automatic skipping. KeePassXC and other apps that follow the KDE
   convention do; without one, use Ignored apps in Preferences instead.
@@ -72,7 +72,7 @@ this window; the state is remembered between sessions.
 
 <!-- quick-template:install:start -->
 
-Requires GNOME Shell 50. For automatic sensitive-copy filtering, use a password manager that sets x-kde-passwordManagerHint. Configure ignored apps when that hint is unavailable.
+Requires GNOME Shell 50 or 51. For automatic sensitive-copy filtering, use a password manager that sets x-kde-passwordManagerHint. Configure ignored apps when that hint is unavailable.
 
 ### From a release
 

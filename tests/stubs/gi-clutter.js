@@ -5,7 +5,7 @@
 // compares against them compares against what the Shell would send.
 
 /**
- * The seat Clutter.get_default_backend() returns. Each virtual device records
+ * The seat global.stage.context.get_backend() returns. Each virtual device records
  * the keyvals it was sent; set `fail` to make creation throw.
  */
 export const virtualSeat = {
@@ -32,8 +32,6 @@ export const virtualSeat = {
 };
 
 export default {
-    get_default_backend: () => ({ get_default_seat: () => virtualSeat }),
-
     KEY_Return: 0xff0d,
     KEY_KP_Enter: 0xff8d,
     KEY_Escape: 0xff1b,

@@ -8,6 +8,7 @@ const stub = name =>
 export default defineConfig({
     test: {
         include: ['tests/**/*.test.js'],
+        setupFiles: ['tests/stubs/shell-global.js'],
         coverage: {
             provider: 'v8',
             reporter: ['text', 'lcov', 'html'],

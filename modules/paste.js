@@ -26,7 +26,7 @@ export class Paster {
      *   [options] Where the seat and the event time (microseconds) come from.
      */
     constructor({
-        seat = () => Clutter.get_default_backend().get_default_seat(),
+        seat = () => global.stage.context.get_backend().get_default_seat(),
         clock = () => GLib.get_monotonic_time(),
     } = {}) {
         this._seat = seat;
